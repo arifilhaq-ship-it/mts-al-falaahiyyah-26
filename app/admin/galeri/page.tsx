@@ -24,7 +24,7 @@ export default function AdminGaleriPage() {
   const fetchGallery = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/gallery");
+      const res = await fetch("/api/gallery", { cache: "no-store" });
       const data = await res.json();
       if (data.success) {
         setItems(data.data);
@@ -39,6 +39,47 @@ export default function AdminGaleriPage() {
   useEffect(() => {
     fetchGallery();
   }, []);
+
+  // Handler unggah foto lokal dari komputer / HP dengan kompresi otomatis
+  const handlePhotoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Ukuran file foto maksimal 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+          setFormData((prev) => ({
+            ...prev,
+            imageUrl: compressedDataUrl,
+          }));
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,18 +254,46 @@ export default function AdminGaleriPage() {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                  Tautan URL Foto (Image URL) *
+              <div className="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200/80 space-y-3">
+                <label className="block text-xs font-bold uppercase tracking-wider text-emerald-950">
+                  Foto Dokumentasi Kegiatan *
                 </label>
-                <input
-                  type="url"
-                  required
-                  value={formData.imageUrl}
-                  onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                  placeholder="https://images.unsplash.com/photo-..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700"
-                />
+
+                {formData.imageUrl && (
+                  <div className="aspect-[16/9] w-full rounded-xl overflow-hidden bg-slate-200 border border-emerald-600 shadow-sm">
+                    <img
+                      src={formData.imageUrl}
+                      alt="Preview Galeri"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <span className="text-xs font-semibold text-slate-700 block mb-1">
+                    1. Unggah Langsung dari Perangkat / HP (JPG, PNG, WebP)
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoFileUpload}
+                    className="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-800 file:text-white hover:file:bg-emerald-900 cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <span className="text-xs font-semibold text-slate-700 block mb-1">
+                    2. Atau Masukkan Tautan URL Foto Eksternal
+                  </span>
+                  <input
+                    type="text"
+                    required
+                    value={formData.imageUrl}
+                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                    placeholder="https://images.unsplash.com/photo-... atau unggah dari atas"
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                  />
+                </div>
               </div>
 
               <div>

@@ -3,6 +3,9 @@ import { cookies } from "next/headers";
 import { getNewsList, createNews } from "@/lib/db";
 import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search")?.toLowerCase();
@@ -24,7 +27,14 @@ export async function GET(request: Request) {
     );
   }
 
-  return NextResponse.json({ success: true, data: items });
+  return NextResponse.json(
+    { success: true, data: items },
+    {
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+      },
+    }
+  );
 }
 
 export async function POST(request: Request) {

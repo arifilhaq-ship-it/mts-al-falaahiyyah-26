@@ -409,7 +409,7 @@ export default function AdminGuruPage() {
                         2. Atau Masukkan Tautan URL Foto
                       </span>
                       <input
-                        type="url"
+                        type="text"
                         value={formData.photo}
                         onChange={(e) => setFormData({ ...formData, photo: e.target.value })}
                         placeholder="https://images.unsplash.com/..."

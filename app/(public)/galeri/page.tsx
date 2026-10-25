@@ -1,17 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { defaultGallery } from "@/lib/data-defaults";
 import { Eye, X, Calendar } from "@/components/Icons";
 import { GalleryItem } from "@/lib/types";
 
-const categories = ["Semua", "Kegiatan Belajar", "Ekstrakurikuler", "PHBI & Keagamaan", "Prestasi"];
+const categories = ["Semua", "Kegiatan Belajar", "Ekstrakurikuler", "PHBI & Keagamaan", "Prestasi", "Fasilitas"];
 
 export default function GaleriPage() {
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(defaultGallery);
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryItem | null>(null);
 
-  const filteredItems = defaultGallery.filter((item) => {
+  useEffect(() => {
+    fetch("/api/gallery", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setGalleryItems(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const filteredItems = galleryItems.filter((item) => {
     if (selectedCategory === "Semua") return true;
     return item.category === selectedCategory;
   });

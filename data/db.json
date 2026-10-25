@@ -32,6 +32,24 @@
   },
   "news": [
     {
+      "title": "JUARA 1 LOMBA MATEMATIKA TINGKAT KABUPATEN SUMEDANG",
+      "slug": "juara-1-lomba-matematika-tingkat-kabupaten-sumedang-4256",
+      "excerpt": "🏆 **JUARA 1 LOMBA MATEMATIKA TINGKAT KABUPATEN SUMEDANG**\n\nPrestasi membanggakan kembali diraih oleh peserta didik **MTs Al Falaahiyyah** dengan berhasil merai...",
+      "content": "🏆 **JUARA 1 LOMBA MATEMATIKA TINGKAT KABUPATEN SUMEDANG**\n\nPrestasi membanggakan kembali diraih oleh peserta didik **MTs Al Falaahiyyah** dengan berhasil meraih **Juara Pertama Lomba Matematika Tingkat Kabupaten Sumedang**.\n\nPencapaian ini merupakan bukti nyata dari semangat belajar, ketekunan, kecerdasan, serta kerja keras peserta didik dalam mengembangkan kemampuan berpikir logis, kritis, dan analitis di bidang matematika.\n\nPrestasi ini tidak lepas dari bimbingan para guru, dukungan orang tua, serta lingkungan madrasah yang senantiasa mendorong peserta didik untuk berprestasi dan mengembangkan potensi terbaiknya.\n\nKeluarga besar MTs Al Falaahiyyah mengucapkan **selamat dan sukses** atas pencapaian yang membanggakan ini. Semoga prestasi tersebut menjadi inspirasi bagi seluruh peserta didik untuk terus belajar, berjuang, dan mengukir prestasi di tingkat yang lebih tinggi.\n\n**MTs Al Falaahiyyah — Berprestasi, Berakhlak Mulia, dan Menginspirasi!**",
+      "category": "Prestasi",
+      "author": "admin",
+      "date": "2026-10-24",
+      "coverImage": "https://6adc22f08111916c54b41dcd.imgix.net/sandbox/Anisatul%20Intiha.JPG",
+      "isPublished": true,
+      "tags": [
+        "MTs Al Falaahiyyah",
+        "Cikoneng Kulon",
+        "Sumedang"
+      ],
+      "id": "news-1792828414282",
+      "views": 0
+    },
+    {
       "id": "news-1",
       "title": "Peringatan Maulid Nabi Muhammad SAW 1446 H di MTs Al Falaahiyyah: Meneladani Akhlak Rasulullah",
       "slug": "peringatan-maulid-nabi-muhammad-saw-1446-h",
@@ -108,52 +126,12 @@
   ],
   "gallery": [
     {
-      "id": "gal-1",
-      "title": "Shalat Berjamaah Dzuhur Santri MTs Al Falaahiyyah",
-      "description": "Pembiasaan shalat berjamaah membentuk kepribadian santri yang disiplin dan taat beribadah.",
-      "category": "PHBI & Keagamaan",
-      "imageUrl": "https://images.unsplash.com/photo-1585036156171-384164a8c675?auto=format&fit=crop&q=80&w=800",
-      "date": "2025-10-12"
-    },
-    {
-      "id": "gal-2",
-      "title": "Kegiatan Belajar Mengajar Berbasis Digital",
-      "description": "Santri mempraktikkan pembelajaran interaktif menggunakan sarana komputer madrasah.",
-      "category": "Kegiatan Belajar",
-      "imageUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=800",
-      "date": "2025-09-25"
-    },
-    {
-      "id": "gal-3",
-      "title": "Latihan Rutin Pramuka Gugus Depan",
-      "description": "Membina kecakapan kepanduan, kepemimpinan, kemandirian, dan cinta tanah air.",
-      "category": "Ekstrakurikuler",
-      "imageUrl": "https://images.unsplash.com/photo-1526976668912-1a811878dd37?auto=format&fit=crop&q=80&w=800",
-      "date": "2025-09-10"
-    },
-    {
-      "id": "gal-4",
-      "title": "Halaqah Tahfidz Al-Qur'an Ba'da Ashar",
-      "description": "Bimbingan setoran hafalan Al-Qur'an secara intensif bersama asatidz pembina.",
-      "category": "PHBI & Keagamaan",
-      "imageUrl": "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&q=80&w=800",
-      "date": "2025-08-30"
-    },
-    {
-      "id": "gal-5",
-      "title": "Grup Hadroh & Shalawat MTs Al Falaahiyyah",
-      "description": "Melestarikan kesenian Islam dan syiar shalawat dalam berbagai perayaan madrasah.",
-      "category": "Ekstrakurikuler",
-      "imageUrl": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=800",
-      "date": "2025-08-15"
-    },
-    {
-      "id": "gal-6",
-      "title": "Penyerahan Trophy Kejuaraan MHQ",
-      "description": "Apresiasi kepala madrasah kepada santri berprestasi di tingkat kabupaten Sumedang.",
+      "title": "JUARA PERTAMA OMI KABUPATEN SUMEDANG",
+      "description": "",
       "category": "Prestasi",
-      "imageUrl": "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=800",
-      "date": "2025-10-05"
+      "imageUrl": "https://6adc22f08111916c54b41dcd.imgix.net/sandbox/Anisatul%20Intiha.JPG",
+      "date": "2026-10-24",
+      "id": "gal-1792828321486"
     }
   ],
   "teachers": [

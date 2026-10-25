@@ -16,8 +16,8 @@ interface DatabaseSchema {
   };
 }
 
-// In-memory cache fallback (berguna jika di-deploy di Vercel/serverless read-only filesystem)
-let inMemoryDb: DatabaseSchema | null = null;
+// Global cache agar bertahan di siklus hidup instance Vercel / Next.js dev
+const globalForDb = globalThis as unknown as { __mtsDbCache?: DatabaseSchema };
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
@@ -42,29 +42,39 @@ function initDatabase(): DatabaseSchema {
 
 // Membaca database secara aman
 export function getDb(): DatabaseSchema {
+  // Jika sudah ada di memory (misalnya di Vercel serverless setelah diedit), prioritaskan memory bila filesystem read-only
+  if (globalForDb.__mtsDbCache) {
+    // Coba cek apakah di lokal file bisa ditulis/dibaca
+    try {
+      if (!process.env.VERCEL && fs.existsSync(DB_FILE)) {
+        const fileData = fs.readFileSync(DB_FILE, "utf-8");
+        globalForDb.__mtsDbCache = JSON.parse(fileData);
+      }
+    } catch {
+      // Abaikan jika gagal baca
+    }
+    return globalForDb.__mtsDbCache;
+  }
+
   try {
     if (fs.existsSync(DB_FILE)) {
       const fileData = fs.readFileSync(DB_FILE, "utf-8");
-      inMemoryDb = JSON.parse(fileData);
-      return inMemoryDb!;
+      globalForDb.__mtsDbCache = JSON.parse(fileData);
+      return globalForDb.__mtsDbCache!;
     }
   } catch (err) {
     console.warn("Gagal membaca db.json lokal, beralih ke in-memory cache:", err);
   }
 
-  if (inMemoryDb) {
-    return inMemoryDb;
-  }
-
   // Jika file belum ada, buat baru
-  inMemoryDb = initDatabase();
-  saveDb(inMemoryDb);
-  return inMemoryDb;
+  const initial = initDatabase();
+  saveDb(initial);
+  return initial;
 }
 
 // Menyimpan database ke file
 export function saveDb(data: DatabaseSchema): boolean {
-  inMemoryDb = data;
+  globalForDb.__mtsDbCache = data;
   try {
     if (!fs.existsSync(DATA_DIR)) {
       fs.mkdirSync(DATA_DIR, { recursive: true });
