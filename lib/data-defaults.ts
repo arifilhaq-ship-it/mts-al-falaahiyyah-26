@@ -22,6 +22,8 @@ export const defaultSettings: SchoolSettings = {
   headmasterName: "Drs. H. Ahmad Fathoni, M.Pd.I (Data Contoh - Ubah di Admin)",
   headmasterSpeech: "Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\nAlhamdulillah, puji syukur kita panjatkan ke hadirat Allah SWT atas limpahan rahmat dan hidayah-Nya. Selamat datang di portal resmi MTs Al Falaahiyyah Cikoneng Kulon, Kecamatan Ganeas, Kabupaten Sumedang.\n\nDi era revolusi teknologi informasi saat ini, kami berkomitmen menghadirkan pendidikan madrasah yang adaptif, religius, dan berdaya saing. MTs Al Falaahiyyah tidak hanya menitikberatkan pada capaian akademis dan penguasaan sains teknologi semata, melainkan juga menanamkan pondasi aqidah, tahsin & tahfidzul Qur'an, serta pembentukan akhlakul karimah sebagai bekal santri menjadi generasi penerus bangsa yang membanggakan.\n\nSemoga website ini menjadi jembatan silaturahmi, pusat informasi transparan bagi orang tua, serta media dokumentasi karya dan prestasi keluarga besar madrasah. Mari bersama bergandengan tangan mewujudkan generasi khaira ummah.\n\nWassalamu'alaikum Warahmatullahi Wabarakatuh.",
   headmasterPhoto: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=600",
+  heroImage: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=1000",
+  profileImage: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=1000",
   announcementText: "Pendaftaran Peserta Didik Baru (PPDB) Tahun Ajaran 2025/2026 Telah Dibuka! Segera Daftarkan Putra-Putri Anda.",
   isAnnouncementActive: true,
   isPpdbActive: true,

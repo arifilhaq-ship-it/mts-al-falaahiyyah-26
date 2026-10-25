@@ -20,7 +20,7 @@ export default async function HomePage() {
   return (
     <>
       {/* 1. Hero Banner dengan Foto Kampus & CTA PPDB */}
-      <HeroBanner />
+      <HeroBanner heroImage={settings.heroImage} />
 
       {/* 2. Quick Highlight Stats */}
       <section className="bg-emerald-900 text-white py-8 border-b-4 border-amber-500 shadow-md">

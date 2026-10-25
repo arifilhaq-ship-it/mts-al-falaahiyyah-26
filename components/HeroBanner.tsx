@@ -2,7 +2,15 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, BookOpen, GraduationCap, ShieldCheck, Sparkles, Award } from "./Icons";
 
-export default function HeroBanner() {
+interface HeroBannerProps {
+  heroImage?: string;
+}
+
+export default function HeroBanner({ heroImage }: HeroBannerProps) {
+  const bannerPhoto =
+    heroImage ||
+    "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=1000";
+
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white py-16 sm:py-24 lg:py-28">
       {/* Background Islamic Pattern Accent */}
@@ -88,7 +96,7 @@ export default function HeroBanner() {
               {/* Bingkai foto utama */}
               <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-emerald-700/50 bg-emerald-900">
                 <img
-                  src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=1000"
+                  src={bannerPhoto}
                   alt="Aktivitas Madrasah MTs Al Falaahiyyah"
                   className="w-full h-80 sm:h-96 object-cover transform hover:scale-105 transition-transform duration-500"
                 />

@@ -40,6 +40,47 @@ export default function AdminPengaturanPage() {
     }
   };
 
+  // Fungsi unggah foto langsung dari perangkat/HP (dengan kompresi otomatis)
+  const handleImageUpload = (
+    field: "headmasterPhoto" | "heroImage" | "profileImage",
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file || !settings) return;
+
+    if (file.size > 8 * 1024 * 1024) {
+      alert("Ukuran file foto maksimal 8MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = field === "headmasterPhoto" ? 800 : 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+          setSettings((prev) => (prev ? { ...prev, [field]: compressedDataUrl } : prev));
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!settings) return;
@@ -242,50 +283,182 @@ export default function AdminPengaturanPage() {
           </div>
         </div>
 
-        {/* Seksi 3: Kepala Madrasah */}
+        {/* Seksi 3: Foto Utama Beranda & Halaman Profil */}
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-lg font-bold text-slate-900">
+              Foto Utama Halaman Beranda &amp; Halaman Profil
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Unggah foto langsung dari komputer/HP Anda (otomatis dikompresi) atau masukkan tautan URL gambar.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* 1. Foto Banner Utama Beranda */}
+            <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 space-y-3">
+              <label className="block text-xs font-bold uppercase text-emerald-950">
+                1. Foto Banner Utama di Beranda (Hero Banner)
+              </label>
+
+              <div className="aspect-[16/10] w-full rounded-xl overflow-hidden bg-slate-200 border border-emerald-600/40 shadow-sm">
+                <img
+                  src={
+                    settings.heroImage ||
+                    "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=1000"
+                  }
+                  alt="Preview Foto Beranda"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div>
+                <span className="text-xs font-semibold text-slate-700 block mb-1">
+                  Pilih File Foto dari Komputer / HP:
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload("heroImage", e)}
+                  className="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-800 file:text-white hover:file:bg-emerald-900 cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <span className="text-xs font-semibold text-slate-700 block mb-1">
+                  Atau Tautan URL Foto Beranda:
+                </span>
+                <input
+                  type="text"
+                  name="heroImage"
+                  value={settings.heroImage || ""}
+                  onChange={handleChange}
+                  placeholder="https://... atau pilih file di atas"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* 2. Foto Gedung / Lingkungan di Halaman Profil */}
+            <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 space-y-3">
+              <label className="block text-xs font-bold uppercase text-emerald-950">
+                2. Foto Gedung / Lingkungan di Halaman Profil
+              </label>
+
+              <div className="aspect-[16/10] w-full rounded-xl overflow-hidden bg-slate-200 border border-emerald-600/40 shadow-sm">
+                <img
+                  src={
+                    settings.profileImage ||
+                    "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=1000"
+                  }
+                  alt="Preview Foto Halaman Profil"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div>
+                <span className="text-xs font-semibold text-slate-700 block mb-1">
+                  Pilih File Foto dari Komputer / HP:
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload("profileImage", e)}
+                  className="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-800 file:text-white hover:file:bg-emerald-900 cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <span className="text-xs font-semibold text-slate-700 block mb-1">
+                  Atau Tautan URL Foto Halaman Profil:
+                </span>
+                <input
+                  type="text"
+                  name="profileImage"
+                  value={settings.profileImage || ""}
+                  onChange={handleChange}
+                  placeholder="https://... atau pilih file di atas"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Seksi 4: Kepala Madrasah */}
         <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
           <h2 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
-            Pimpinan Madrasah &amp; Sambutan
+            Pimpinan Madrasah &amp; Sambutan (Tampil di Beranda)
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                Nama Lengkap &amp; Gelar Kepala Madrasah
-              </label>
-              <input
-                type="text"
-                name="headmasterName"
-                value={settings.headmasterName}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-700 focus:outline-none"
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                  Nama Lengkap &amp; Gelar Kepala Madrasah
+                </label>
+                <input
+                  type="text"
+                  name="headmasterName"
+                  value={settings.headmasterName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-700 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                  Teks Sambutan Kepala Madrasah
+                </label>
+                <textarea
+                  name="headmasterSpeech"
+                  rows={6}
+                  value={settings.headmasterSpeech}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-700 focus:outline-none"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                URL Foto Kepala Madrasah
+            <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-200 space-y-3">
+              <label className="block text-xs font-bold uppercase text-emerald-950">
+                3. Foto Kepala Madrasah (Sambutan Beranda)
               </label>
-              <input
-                type="url"
-                name="headmasterPhoto"
-                value={settings.headmasterPhoto}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-700 focus:outline-none"
-              />
-            </div>
 
-            <div className="sm:col-span-2">
-              <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                Teks Sambutan Kepala Madrasah
-              </label>
-              <textarea
-                name="headmasterSpeech"
-                rows={5}
-                value={settings.headmasterSpeech}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-700 focus:outline-none"
-              />
+              {settings.headmasterPhoto && (
+                <div className="w-36 h-44 mx-auto rounded-xl overflow-hidden bg-slate-200 border border-emerald-600/40 shadow-sm">
+                  <img
+                    src={settings.headmasterPhoto}
+                    alt="Preview Kepala Madrasah"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              <div>
+                <span className="text-xs font-semibold text-slate-700 block mb-1">
+                  Pilih File Foto Kepala Madrasah:
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload("headmasterPhoto", e)}
+                  className="block w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-800 file:text-white hover:file:bg-emerald-900 cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <span className="text-xs font-semibold text-slate-700 block mb-1">
+                  Atau Tautan URL Foto Kepala Madrasah:
+                </span>
+                <input
+                  type="text"
+                  name="headmasterPhoto"
+                  value={settings.headmasterPhoto}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:ring-2 focus:ring-emerald-700 focus:outline-none"
+                />
+              </div>
             </div>
           </div>
         </div>

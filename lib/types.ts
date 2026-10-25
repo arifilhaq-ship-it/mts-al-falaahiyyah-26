@@ -54,6 +54,8 @@ export interface SchoolSettings {
   headmasterName: string;
   headmasterSpeech: string;
   headmasterPhoto: string;
+  heroImage?: string;
+  profileImage?: string;
   announcementText: string;
   isAnnouncementActive: boolean;
   // Konfigurasi PPDB

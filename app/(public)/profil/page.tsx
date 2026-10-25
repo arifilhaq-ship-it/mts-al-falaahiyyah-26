@@ -67,7 +67,10 @@ export default async function ProfilPage() {
           <div className="lg:col-span-6">
             <div className="relative rounded-2xl overflow-hidden shadow-xl border-4 border-emerald-100 aspect-[4/3] bg-slate-100">
               <img
-                src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=1000"
+                src={
+                  settings.profileImage ||
+                  "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=1000"
+                }
                 alt="Kampus MTs Al Falaahiyyah Cikoneng Kulon Ganeas"
                 className="w-full h-full object-cover"
               />
