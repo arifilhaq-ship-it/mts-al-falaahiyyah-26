@@ -594,12 +594,17 @@ export async function updatePpdbStatus(
 }
 
 // --- AUTENTIKASI ADMIN ---
+export async function getAdminUsername(): Promise<string> {
+  const db = await getDb();
+  return db.admin?.username || process.env.ADMIN_USERNAME || "admin";
+}
+
 export async function validateAdminUser(username: string, passwordAttempt: string): Promise<boolean> {
   const db = await getDb();
-  const expectedUser = process.env.ADMIN_USERNAME || db.admin.username || "admin";
-  const expectedPass = process.env.ADMIN_PASSWORD || db.admin.passwordHash || "AdminAlFalaahiyyah2025!";
+  const expectedUser = db.admin?.username || process.env.ADMIN_USERNAME || "admin";
+  const expectedPass = db.admin?.passwordHash || process.env.ADMIN_PASSWORD || "AdminAlFalaahiyyah2025!";
 
-  if (username !== expectedUser) {
+  if (username.trim() !== expectedUser.trim()) {
     return false;
   }
 
@@ -610,5 +615,19 @@ export async function updateAdminPassword(newPassword: string): Promise<void> {
   const db = await getDb();
   const hashedPassword = await hashPassword(newPassword);
   db.admin.passwordHash = hashedPassword;
+  await saveDb(db);
+}
+
+export async function updateAdminCredentials(
+  newUsername: string,
+  newPassword?: string
+): Promise<void> {
+  const db = await getDb();
+  if (newUsername && newUsername.trim()) {
+    db.admin.username = newUsername.trim();
+  }
+  if (newPassword && newPassword.trim()) {
+    db.admin.passwordHash = await hashPassword(newPassword.trim());
+  }
   await saveDb(db);
 }

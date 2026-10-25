@@ -4,15 +4,55 @@ import { ArrowRight, BookOpen, GraduationCap, ShieldCheck, Sparkles, Award } fro
 
 interface HeroBannerProps {
   heroImage?: string;
+  specialProgramLabel?: string;
+  specialProgramTitle?: string;
+  heroPhotoCaption?: string;
+  schoolName?: string;
 }
 
-export default function HeroBanner({ heroImage }: HeroBannerProps) {
+export default function HeroBanner({
+  heroImage,
+  specialProgramLabel,
+  specialProgramTitle,
+  heroPhotoCaption,
+  schoolName,
+}: HeroBannerProps) {
   const bannerPhoto =
     heroImage ||
     "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=1000";
 
+  const programLabel = specialProgramLabel || "Program Khusus";
+  const programTitle = specialProgramTitle || "Tahfidz & Kitab Kuning";
+  const photoCaption =
+    heroPhotoCaption || "Kampus Cikoneng Kulon, Kec. Ganeas, Kab. Sumedang";
+  const activeSchoolName = schoolName || "MTs Al Falaahiyyah";
+
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white py-16 sm:py-24 lg:py-28">
+    <div className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white py-14 sm:py-20 lg:py-24">
+      {/* Animasi Keyframes Elegan */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes floatSlow {
+              0%, 100% { transform: translateY(0px); }
+              50% { transform: translateY(-6px); }
+            }
+            @keyframes shimmerGlow {
+              0% { background-position: -200% 0; }
+              100% { background-position: 200% 0; }
+            }
+            .animate-float-elegant {
+              animation: floatSlow 4.5s ease-in-out infinite;
+            }
+            .shimmer-border {
+              background: linear-gradient(90deg, rgba(245,158,11,0.25) 0%, rgba(251,191,36,0.85) 50%, rgba(245,158,11,0.25) 100%);
+              background-size: 200% 100%;
+              animation: shimmerGlow 5s linear infinite;
+            }
+          `,
+        }}
+      />
+
       {/* Background Islamic Pattern Accent */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
@@ -32,7 +72,7 @@ export default function HeroBanner({ heroImage }: HeroBannerProps) {
       <div className="absolute bottom-10 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Sisi Kiri: Headline & Call To Action */}
           <div className="lg:col-span-7 text-left space-y-6">
             {/* Badge Kementerian & Lokasi */}
@@ -51,7 +91,7 @@ export default function HeroBanner({ heroImage }: HeroBannerProps) {
             </h1>
 
             <p className="text-base sm:text-lg text-emerald-100/90 leading-relaxed max-w-2xl">
-              Selamat datang di website resmi <strong className="text-white">MTs Al Falaahiyyah Cikoneng Kulon</strong>, Kecamatan Ganeas, Kabupaten Sumedang. Memadukan kurikulum nasional, nilai pesantren salaf, dan penguasaan sains teknologi.
+              Selamat datang di website resmi <strong className="text-white">{activeSchoolName} Cikoneng Kulon</strong>, Kecamatan Ganeas, Kabupaten Sumedang. Memadukan kurikulum nasional, nilai pesantren salaf, dan penguasaan sains teknologi.
             </p>
 
             {/* Tombol Tindakan */}
@@ -90,37 +130,53 @@ export default function HeroBanner({ heroImage }: HeroBannerProps) {
             </div>
           </div>
 
-          {/* Sisi Kanan: Foto Kampus & Kartu Stat Madrasah */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative mx-auto max-w-md lg:max-w-none">
-              {/* Bingkai foto utama */}
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-emerald-700/50 bg-emerald-900">
+          {/* Sisi Kanan: Foto Kampus Bersih (Tanpa Tertutup Kotak) + Banner Animasi Elegan di Bawah Foto */}
+          <div className="lg:col-span-5">
+            <div className="mx-auto max-w-md lg:max-w-none space-y-4">
+              {/* 1. Bingkai Foto Utama (100% Bersih Tidak Terhalang) */}
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-emerald-700/60 bg-emerald-900 group">
                 <img
                   src={bannerPhoto}
-                  alt="Aktivitas Madrasah MTs Al Falaahiyyah"
-                  className="w-full h-80 sm:h-96 object-cover transform hover:scale-105 transition-transform duration-500"
+                  alt={`Aktivitas Madrasah ${activeSchoolName}`}
+                  className="w-full h-72 sm:h-80 md:h-96 object-cover transform group-hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-emerald-950/20 to-transparent" />
-                
-                {/* Overlay teks pada foto */}
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                  <span className="bg-amber-500 text-emerald-950 text-xs font-black uppercase px-2.5 py-1 rounded-md">
-                    MTs Al Falaahiyyah
+                {/* Baris Keterangan Tipis di Bawah Foto */}
+                <div className="bg-emerald-950/95 border-t border-emerald-800/80 px-4 py-2.5 flex items-center justify-between gap-2">
+                  <span className="bg-amber-500 text-emerald-950 text-[11px] font-black uppercase px-2.5 py-0.5 rounded shrink-0">
+                    {activeSchoolName}
                   </span>
-                  <p className="font-bold text-sm sm:text-base mt-1.5 text-white drop-shadow">
-                    Kampus Cikoneng Kulon, Kec. Ganeas, Kab. Sumedang
+                  <p className="font-semibold text-xs text-emerald-100 truncate">
+                    {photoCaption}
                   </p>
                 </div>
               </div>
 
-              {/* Floating Card: Program Tahfidz */}
-              <div className="absolute -bottom-6 -left-4 sm:-left-6 bg-white text-slate-900 p-4 rounded-xl shadow-xl border border-slate-100 flex items-center gap-3.5 max-w-[240px]">
-                <div className="w-12 h-12 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-800 shrink-0">
-                  <GraduationCap className="w-7 h-7" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold uppercase text-emerald-700">Program Khusus</div>
-                  <div className="text-sm font-extrabold text-slate-900">Tahfidz &amp; Kitab Kuning</div>
+              {/* 2. Kartu Program Khusus dengan Animasi Elegan (Berada di Bawah Foto, Tidak Menghalangi Foto) */}
+              <div className="animate-float-elegant p-[2px] rounded-2xl shimmer-border shadow-xl">
+                <div className="bg-gradient-to-r from-emerald-950/95 via-emerald-900/95 to-emerald-950/95 backdrop-blur-md rounded-2xl px-4 py-3.5 flex items-center justify-between gap-4 border border-emerald-700/40">
+                  <div className="flex items-center gap-3.5">
+                    <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-emerald-950 shrink-0 shadow-md">
+                      <span className="absolute -inset-0.5 rounded-xl bg-amber-400/40 animate-ping opacity-30" />
+                      <GraduationCap className="w-6 h-6 relative z-10" />
+                    </div>
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-amber-400">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>{programLabel}</span>
+                      </div>
+                      <div className="text-sm sm:text-base font-extrabold text-white tracking-tight mt-0.5">
+                        {programTitle}
+                      </div>
+                    </div>
+                  </div>
+
+                  <Link
+                    href="/akademik"
+                    className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-amber-300 hover:text-amber-200 bg-emerald-800/70 hover:bg-emerald-800 px-3 py-2 rounded-xl border border-emerald-600/50 transition-all shrink-0"
+                  >
+                    <span>Detail</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </div>
             </div>

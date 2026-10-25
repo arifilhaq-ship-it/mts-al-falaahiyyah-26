@@ -3,12 +3,14 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
-import { ShieldCheck, User, ArrowRight, CheckCircle } from "@/components/Icons";
+import { ShieldCheck } from "@/components/Icons";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showUsername, setShowUsername] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -76,25 +78,44 @@ export default function AdminLoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-5">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Nama Pengguna (Username)
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Nama Pengguna (Username)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowUsername(!showUsername)}
+                  className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-900"
+                >
+                  {showUsername ? "Sembunyikan" : "Lihat"}
+                </button>
+              </div>
               <input
-                type="text"
+                type={showUsername ? "text" : "password"}
                 required
+                autoComplete="off"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin"
+                placeholder="••••••••"
                 className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-700 text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Kata Sandi (Password)
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  Kata Sandi (Password)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-900"
+                >
+                  {showPassword ? "Sembunyikan" : "Lihat"}
+                </button>
+              </div>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -119,16 +140,10 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          {/* Kotak Petunjuk Kredensial Default untuk Pengembang / Administrator Baru */}
-          <div className="mt-6 pt-5 border-t border-slate-100 bg-emerald-50/70 p-4 rounded-xl text-xs text-slate-600 space-y-1">
-            <p className="font-bold text-emerald-900 flex items-center gap-1.5">
-              <CheckCircle className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Kredensial Default Bawaan:</span>
-            </p>
-            <p className="text-slate-700">Username: <code className="bg-white px-1.5 py-0.5 rounded border border-emerald-200 font-mono font-bold text-emerald-800">admin</code></p>
-            <p className="text-slate-700">Password: <code className="bg-white px-1.5 py-0.5 rounded border border-emerald-200 font-mono font-bold text-emerald-800">AdminAlFalaahiyyah2025!</code></p>
-            <p className="text-[11px] text-slate-500 pt-1">
-              *Dapat diubah di menu Pengaturan atau melalui file lingkungan <code className="font-mono">.env.local</code>.
+          <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+            <p className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+              <span>Akses Khusus Administrator Resmi MTs Al Falaahiyyah</span>
             </p>
           </div>
         </div>

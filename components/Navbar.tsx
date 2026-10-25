@@ -121,7 +121,11 @@ export default function Navbar({ initialSettings }: NavbarProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Logo size={scrolled ? "sm" : "md"} />
+            <Logo
+              size={scrolled ? "sm" : "md"}
+              logoUrl={settings.logoUrl}
+              schoolName={settings.schoolName}
+            />
 
             {/* Desktop Navigation Links */}
             <div className="hidden lg:flex items-center space-x-1 xl:space-x-2">

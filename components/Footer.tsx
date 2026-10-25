@@ -37,7 +37,12 @@ export default function Footer({ initialSettings }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Kolom 1: Profil & Identitas Madrasah */}
           <div className="space-y-4">
-            <Logo light size="md" />
+            <Logo
+              light
+              size="md"
+              logoUrl={settings.logoUrl}
+              schoolName={settings.schoolName}
+            />
             <p className="text-emerald-200/90 text-sm leading-relaxed pt-2">
               {settings.description || "Lembaga pendidikan Islam tingkat menengah pertama di Cikoneng Kulon, Kecamatan Ganeas, Kabupaten Sumedang yang berkomitmen mencetak generasi Qur'ani, unggul dalam sains, dan berakhlakul karimah."}
             </p>
