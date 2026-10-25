@@ -13,7 +13,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   }
 
   const { id } = params;
-  const success = deleteGallery(id);
+  const success = await deleteGallery(id);
 
   if (!success) {
     return NextResponse.json({ success: false, message: "Foto galeri tidak ditemukan." }, { status: 404 });

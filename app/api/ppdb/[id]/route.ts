@@ -17,7 +17,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const body = await request.json();
     const { status, notes } = body;
 
-    const updated = updatePpdbStatus(id, status, notes);
+    const updated = await updatePpdbStatus(id, status, notes);
     if (!updated) {
       return NextResponse.json({ success: false, message: "Data PPDB tidak ditemukan." }, { status: 404 });
     }

@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET() {
-  const items = getGalleryList();
+  const items = await getGalleryList();
   return NextResponse.json(
     { success: true, data: items },
     {
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Judul dan tautan gambar wajib diisi." }, { status: 400 });
     }
 
-    const newItem = createGallery({
+    const newItem = await createGallery({
       title,
       description: description || "",
       category: category || "Kegiatan Belajar",

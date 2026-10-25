@@ -5,7 +5,7 @@ import { getNewsBySlug, getNewsList } from "@/lib/db";
 import { Calendar, User, ArrowRight, BookOpen, WhatsApp, Sparkles } from "@/components/Icons";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const item = getNewsBySlug(params.slug);
+  const item = await getNewsBySlug(params.slug);
   if (!item) return { title: "Berita Tidak Ditemukan" };
   return {
     title: item.title,
@@ -13,15 +13,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default function DetailBeritaPage({ params }: { params: { slug: string } }) {
+export default async function DetailBeritaPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
-  const article = getNewsBySlug(slug);
+  const article = await getNewsBySlug(slug);
 
   if (!article) {
     notFound();
   }
 
-  const allNews = getNewsList(false);
+  const allNews = await getNewsList(false);
   const relatedNews = allNews.filter((n) => n.id !== article.id).slice(0, 3);
 
   // Pecah konten berdasarkan paragraf

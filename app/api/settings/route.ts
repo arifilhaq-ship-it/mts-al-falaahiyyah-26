@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET() {
-  const settings = getSchoolSettings();
+  const settings = await getSchoolSettings();
   return NextResponse.json(
     { success: true, data: settings },
     {
@@ -29,7 +29,7 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
-    const updated = updateSchoolSettings(body);
+    const updated = await updateSchoolSettings(body);
     return NextResponse.json(
       { success: true, data: updated, message: "Informasi madrasah berhasil diperbarui." },
       {

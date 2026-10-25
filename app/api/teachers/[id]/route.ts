@@ -16,7 +16,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const { id } = params;
     const body = await request.json();
 
-    const updated = updateTeacher(id, body);
+    const updated = await updateTeacher(id, body);
     if (!updated) {
       return NextResponse.json({ success: false, message: "Data guru tidak ditemukan." }, { status: 404 });
     }
@@ -42,7 +42,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   }
 
   const { id } = params;
-  const success = deleteTeacher(id);
+  const success = await deleteTeacher(id);
 
   if (!success) {
     return NextResponse.json({ success: false, message: "Data guru tidak ditemukan." }, { status: 404 });

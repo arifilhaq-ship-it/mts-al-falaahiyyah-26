@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default function ProfilPage() {
-  const settings = getSchoolSettings();
+export default async function ProfilPage() {
+  const settings = await getSchoolSettings();
 
   const facilities = [
     { title: "Ruang Kelas Representatif", desc: "Dilengkapi ventilasi memadai, pencahayaan optimal, dan sarana multimedia pembelajaran." },

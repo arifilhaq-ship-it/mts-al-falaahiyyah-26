@@ -16,7 +16,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const { id } = params;
     const body = await request.json();
 
-    const updated = updateNews(id, body);
+    const updated = await updateNews(id, body);
     if (!updated) {
       return NextResponse.json({ success: false, message: "Berita tidak ditemukan." }, { status: 404 });
     }
@@ -37,7 +37,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   }
 
   const { id } = params;
-  const success = deleteNews(id);
+  const success = await deleteNews(id);
 
   if (!success) {
     return NextResponse.json({ success: false, message: "Berita tidak ditemukan." }, { status: 404 });

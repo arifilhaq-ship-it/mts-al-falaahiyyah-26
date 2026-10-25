@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const category = searchParams.get("category");
   const all = searchParams.get("all") === "true";
 
-  let items = getNewsList(all);
+  let items = await getNewsList(all);
 
   if (category && category !== "Semua") {
     items = items.filter((item) => item.category === category);
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "") + `-${Date.now().toString().slice(-4)}`;
 
-    const newItem = createNews({
+    const newItem = await createNews({
       title,
       slug,
       excerpt: excerpt || content.substring(0, 160) + "...",

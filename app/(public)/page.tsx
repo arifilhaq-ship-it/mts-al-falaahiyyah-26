@@ -12,10 +12,10 @@ import { BookOpen, GraduationCap, Users, Award, ArrowRight, ShieldCheck } from "
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default function HomePage() {
-  const settings = getSchoolSettings();
-  const news = getNewsList(false);
-  const gallery = getGalleryList();
+export default async function HomePage() {
+  const settings = await getSchoolSettings();
+  const news = await getNewsList(false);
+  const gallery = await getGalleryList();
 
   return (
     <>

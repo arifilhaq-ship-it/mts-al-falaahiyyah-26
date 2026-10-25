@@ -7,12 +7,12 @@ import { getSchoolSettings } from "@/lib/db";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default function PublicLayout({
+export default async function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const settings = getSchoolSettings();
+  const settings = await getSchoolSettings();
 
   return (
     <div className="flex flex-col min-h-screen">

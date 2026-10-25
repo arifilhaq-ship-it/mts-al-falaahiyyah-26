@@ -12,7 +12,7 @@ export async function GET() {
     return NextResponse.json({ success: false, message: "Akses ditolak." }, { status: 401 });
   }
 
-  const list = getPpdbList();
+  const list = await getPpdbList();
   return NextResponse.json({ success: true, data: list });
 }
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Nama lengkap, sekolah asal, dan nomor WhatsApp orang tua wajib diisi." }, { status: 400 });
     }
 
-    const newRecord = createPpdbRegistration({
+    const newRecord = await createPpdbRegistration({
       fullName,
       nisn: nisn || "-",
       gender: gender || "L",

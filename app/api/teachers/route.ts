@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET() {
-  const teachers = getTeachersList();
+  const teachers = await getTeachersList();
   return NextResponse.json(
     { success: true, data: teachers },
     {
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
     const defaultPhoto = "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=400";
 
-    const newTeacher = createTeacher({
+    const newTeacher = await createTeacher({
       name,
       role,
       category: category || "umum",

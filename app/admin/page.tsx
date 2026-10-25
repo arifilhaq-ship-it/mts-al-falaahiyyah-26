@@ -1,14 +1,18 @@
 import React from "react";
 import Link from "next/link";
-import { getNewsList, getGalleryList, getPpdbList, getSchoolSettings, getTeachersList } from "@/lib/db";
+import { getNewsList, getGalleryList, getPpdbList, getSchoolSettings, getTeachersList, isPermanentStorageConfigured } from "@/lib/db";
 import { FileText, ImageIcon, Users, Settings, ArrowRight, CheckCircle, Bell, GraduationCap } from "@/components/Icons";
 
-export default function AdminDashboardPage() {
-  const news = getNewsList(true);
-  const gallery = getGalleryList();
-  const teachers = getTeachersList();
-  const ppdb = getPpdbList();
-  const settings = getSchoolSettings();
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function AdminDashboardPage() {
+  const news = await getNewsList(true);
+  const gallery = await getGalleryList();
+  const teachers = await getTeachersList();
+  const ppdb = await getPpdbList();
+  const settings = await getSchoolSettings();
+  const storageStatus = isPermanentStorageConfigured();
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -48,6 +52,16 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
       </div>
+
+      {/* Status Penyimpanan Cloud Permanen */}
+      {!storageStatus.active && (
+        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-4 text-xs sm:text-sm text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <strong>Mode Penyimpanan Sementara (Vercel Read-Only):</strong> Tambahkan variabel{" "}
+            <code className="bg-amber-100 px-1.5 py-0.5 rounded font-mono font-bold">GITHUB_TOKEN</code> di pengaturan Environment Variables Vercel agar penambahan/penghapusan foto galeri, berita, dan guru tersimpan permanen selamanya.
+          </div>
+        </div>
+      )}
 
       {/* Grid Statistik Ringkasan */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">

@@ -1,17 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { defaultNews } from "@/lib/data-defaults";
+import { NewsItem } from "@/lib/types";
 import { Search, Calendar, User, ArrowRight } from "@/components/Icons";
 
-const categories = ["Semua", "Keagamaan", "Prestasi", "Pengumuman", "Kegiatan Siswa"];
+const categories = ["Semua", "Keagamaan", "Prestasi", "Pengumuman", "Kegiatan Siswa", "Akademik"];
 
 export default function BeritaPage() {
+  const [newsItems, setNewsItems] = useState<NewsItem[]>(defaultNews);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
 
-  const filteredNews = defaultNews.filter((item) => {
+  useEffect(() => {
+    fetch("/api/news", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          setNewsItems(data.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const filteredNews = newsItems.filter((item) => {
     const matchesCategory =
       selectedCategory === "Semua" || item.category === selectedCategory;
     const matchesSearch =

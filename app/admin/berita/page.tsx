@@ -26,7 +26,7 @@ export default function AdminBeritaPage() {
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/news?all=true");
+      const res = await fetch("/api/news?all=true", { cache: "no-store" });
       const data = await res.json();
       if (data.success) {
         setNews(data.data);
@@ -36,6 +36,42 @@ export default function AdminBeritaPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCoverFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Ukuran file foto maksimal 5MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 1200;
+        let width = img.width;
+        let height = img.height;
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+          setFormData((prev) => ({
+            ...prev,
+            coverImage: compressedDataUrl,
+          }));
+        }
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
   };
 
   useEffect(() => {
@@ -289,17 +325,33 @@ export default function AdminBeritaPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                  URL Gambar Sampul (Cover Image)
+              <div className="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200/80 space-y-2.5">
+                <label className="block text-xs font-bold uppercase text-emerald-950">
+                  Gambar Sampul Berita (Cover Image)
                 </label>
-                <input
-                  type="url"
-                  value={formData.coverImage}
-                  onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700"
-                />
+                <div>
+                  <span className="text-xs font-semibold text-slate-700 block mb-1">
+                    1. Unggah Foto dari Perangkat / HP:
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverFileUpload}
+                    className="block w-full text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-800 file:text-white hover:file:bg-emerald-900 cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-slate-700 block mb-1">
+                    2. Atau Masukkan Tautan URL Gambar:
+                  </span>
+                  <input
+                    type="text"
+                    value={formData.coverImage}
+                    onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-700"
+                  />
+                </div>
               </div>
 
               <div>

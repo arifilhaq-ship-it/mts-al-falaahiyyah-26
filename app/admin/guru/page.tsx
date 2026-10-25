@@ -86,25 +86,43 @@ export default function AdminGuruPage() {
     setIsModalOpen(true);
   };
 
-  // Handler unggah foto lokal dari komputer / perangkat
+  // Handler unggah foto lokal dari komputer / perangkat dengan kompresi otomatis
   const handlePhotoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Batasi ukuran maksimal 3MB
-    if (file.size > 3 * 1024 * 1024) {
-      alert("Ukuran file foto maksimal 3MB.");
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Ukuran file foto maksimal 5MB.");
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      if (event.target?.result) {
-        setFormData((prev) => ({
-          ...prev,
-          photo: event.target!.result as string,
-        }));
-      }
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 700;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+          setFormData((prev) => ({
+            ...prev,
+            photo: compressedDataUrl,
+          }));
+        }
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
