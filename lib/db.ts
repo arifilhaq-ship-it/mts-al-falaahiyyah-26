@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { cookies } from "next/headers";
 import { NewsItem, GalleryItem, Teacher, SchoolSettings, PpdbRegistration } from "./types";
 import { defaultSettings, defaultNews, defaultGallery, defaultTeachers, defaultPpdbList } from "./data-defaults";
 import { verifyPassword, hashPassword } from "./auth";
@@ -16,15 +17,17 @@ export interface DatabaseSchema {
   };
 }
 
+export const GH_TOKEN_COOKIE = "mts_gh_token";
+
 const globalForDb = globalThis as unknown as {
   __mtsDbCache?: DatabaseSchema;
   __mtsDbLastFetch?: number;
+  __mtsGhToken?: string;
 };
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || "";
 const GITHUB_REPO = process.env.GITHUB_REPO || "arifilhaq-ship-it/mts-al-falaahiyyah-26";
 const GITHUB_DB_BRANCH = process.env.GITHUB_DB_BRANCH || "db-data";
 
@@ -32,12 +35,31 @@ const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
 const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
 const KV_KEY = "mts_al_falaahiyyah_db_v1";
 
+export function getActiveGitHubToken(): string {
+  if (process.env.GITHUB_TOKEN) return process.env.GITHUB_TOKEN;
+  try {
+    const cookieStore = cookies();
+    const cookieToken = cookieStore.get(GH_TOKEN_COOKIE)?.value;
+    if (cookieToken) {
+      globalForDb.__mtsGhToken = cookieToken;
+      return cookieToken;
+    }
+  } catch {
+    // cookies() mungkin dipanggil di luar request context
+  }
+  return globalForDb.__mtsGhToken || "";
+}
+
+export function setActiveGitHubToken(token: string) {
+  globalForDb.__mtsGhToken = token.trim();
+}
+
 export function isPermanentStorageConfigured(): {
   active: boolean;
   provider: "github" | "kv" | "local-file" | "memory-only";
 } {
   if (KV_URL && KV_TOKEN) return { active: true, provider: "kv" };
-  if (GITHUB_TOKEN) return { active: true, provider: "github" };
+  if (getActiveGitHubToken()) return { active: true, provider: "github" };
   if (!process.env.VERCEL) return { active: true, provider: "local-file" };
   return { active: false, provider: "memory-only" };
 }
@@ -108,134 +130,189 @@ async function writeToKv(data: DatabaseSchema): Promise<boolean> {
   }
 }
 
-// --- CLOUD STORAGE 2: GITHUB REPOSITORY API (GRATIS & PERMANEN) ---
+// --- CLOUD STORAGE 2: GITHUB CLOUD DATABASE (MENDUKUNG FILE BESAR > 1MB & REPO PUBLIK) ---
 async function readFromGitHub(): Promise<DatabaseSchema | null> {
-  if (!GITHUB_TOKEN) return null;
+  const token = getActiveGitHubToken();
+  const headers: Record<string, string> = {
+    "User-Agent": "MTs-Al-Falaahiyyah-CMS",
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   try {
-    const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/data/db.json?ref=${GITHUB_DB_BRANCH}`;
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
-        Accept: "application/vnd.github.v3.raw",
-        "User-Agent": "MTs-Al-Falaahiyyah-CMS",
-      },
-      cache: "no-store",
-    });
-
-    if (res.ok) {
-      const text = await res.text();
-      return JSON.parse(text) as DatabaseSchema;
-    }
-
-    // Jika branch db-data belum ada, coba baca dari branch main
-    if (res.status === 404) {
-      const fallbackUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/data/db.json?ref=main`;
-      const fallbackRes = await fetch(fallbackUrl, {
-        headers: {
-          Authorization: `Bearer ${GITHUB_TOKEN}`,
-          Accept: "application/vnd.github.v3.raw",
-          "User-Agent": "MTs-Al-Falaahiyyah-CMS",
-        },
-        cache: "no-store",
-      });
-      if (fallbackRes.ok) {
-        const text = await fallbackRes.text();
-        return JSON.parse(text) as DatabaseSchema;
+    // 1. Jika ada token, ambil commit terbaru di branch db-data lalu baca raw blob-nya agar selalu instan (tanpa cache CDN)
+    if (token) {
+      const refRes = await fetch(
+        `https://api.github.com/repos/${GITHUB_REPO}/git/ref/heads/${GITHUB_DB_BRANCH}`,
+        {
+          headers: { ...headers, Accept: "application/vnd.github.v3+json" },
+          cache: "no-store",
+        }
+      );
+      if (refRes.ok) {
+        const refData = await refRes.json();
+        const commitSha = refData?.object?.sha;
+        if (commitSha) {
+          const rawBySha = await fetch(
+            `https://raw.githubusercontent.com/${GITHUB_REPO}/${commitSha}/data/db.json`,
+            { headers, cache: "no-store" }
+          );
+          if (rawBySha.ok) {
+            const text = await rawBySha.text();
+            return JSON.parse(text) as DatabaseSchema;
+          }
+        }
       }
     }
+
+    // 2. Baca langsung dari branch db-data publik (bahkan pengunjung publik tanpa token tetap mendapat data terbaru!)
+    const publicRawRes = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_DB_BRANCH}/data/db.json?t=${Date.now()}`,
+      { headers, cache: "no-store" }
+    );
+    if (publicRawRes.ok) {
+      const text = await publicRawRes.text();
+      return JSON.parse(text) as DatabaseSchema;
+    }
   } catch (err) {
-    console.warn("Gagal membaca database dari GitHub API:", err);
+    console.warn("Gagal membaca database dari GitHub:", err);
   }
   return null;
 }
 
-async function ensureGitHubBranchExists(): Promise<boolean> {
+export async function writeToGitHub(data: DatabaseSchema, customToken?: string): Promise<{ ok: boolean; error?: string }> {
+  const token = customToken || getActiveGitHubToken();
+  if (!token) {
+    return { ok: false, error: "Token GitHub belum diisi." };
+  }
+
   const headers = {
-    Authorization: `Bearer ${GITHUB_TOKEN}`,
+    Authorization: `Bearer ${token}`,
     Accept: "application/vnd.github.v3+json",
     "User-Agent": "MTs-Al-Falaahiyyah-CMS",
     "Content-Type": "application/json",
   };
 
-  const checkRes = await fetch(
-    `https://api.github.com/repos/${GITHUB_REPO}/git/ref/heads/${GITHUB_DB_BRANCH}`,
-    { headers, cache: "no-store" }
-  );
-  if (checkRes.ok) return true;
-
-  // Buat branch db-data dari main agar penyimpanan tidak memicu rebuild Vercel
-  const mainRes = await fetch(
-    `https://api.github.com/repos/${GITHUB_REPO}/git/ref/heads/main`,
-    { headers, cache: "no-store" }
-  );
-  if (!mainRes.ok) return false;
-  const mainData = await mainRes.json();
-  const mainSha = mainData?.object?.sha;
-  if (!mainSha) return false;
-
-  const createRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/git/refs`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      ref: `refs/heads/${GITHUB_DB_BRANCH}`,
-      sha: mainSha,
-    }),
-    cache: "no-store",
-  });
-
-  return createRes.ok || createRes.status === 422;
-}
-
-async function writeToGitHub(data: DatabaseSchema): Promise<boolean> {
-  if (!GITHUB_TOKEN) return false;
   try {
-    const headers = {
-      Authorization: `Bearer ${GITHUB_TOKEN}`,
-      Accept: "application/vnd.github.v3+json",
-      "User-Agent": "MTs-Al-Falaahiyyah-CMS",
-      "Content-Type": "application/json",
-    };
-
-    await ensureGitHubBranchExists();
-
-    // Ambil SHA file saat ini di branch db-data
-    let fileSha: string | undefined;
-    const metaRes = await fetch(
-      `https://api.github.com/repos/${GITHUB_REPO}/contents/data/db.json?ref=${GITHUB_DB_BRANCH}`,
+    // 1. Cek apakah branch db-data sudah ada; jika belum, buat dari main
+    let baseCommitSha = "";
+    const refRes = await fetch(
+      `https://api.github.com/repos/${GITHUB_REPO}/git/ref/heads/${GITHUB_DB_BRANCH}`,
       { headers, cache: "no-store" }
     );
-    if (metaRes.ok) {
-      const meta = await metaRes.json();
-      fileSha = meta.sha;
-    }
 
-    const contentBase64 = Buffer.from(JSON.stringify(data, null, 2), "utf-8").toString("base64");
+    if (refRes.ok) {
+      const refJson = await refRes.json();
+      baseCommitSha = refJson?.object?.sha || "";
+    } else {
+      const mainRes = await fetch(
+        `https://api.github.com/repos/${GITHUB_REPO}/git/ref/heads/main`,
+        { headers, cache: "no-store" }
+      );
+      if (!mainRes.ok) {
+        const errText = await mainRes.text();
+        return { ok: false, error: `Token tidak valid atau repo tidak ditemukan (${mainRes.status}): ${errText}` };
+      }
+      const mainJson = await mainRes.json();
+      baseCommitSha = mainJson?.object?.sha || "";
 
-    const putRes = await fetch(
-      `https://api.github.com/repos/${GITHUB_REPO}/contents/data/db.json`,
-      {
-        method: "PUT",
+      // Buat branch db-data
+      await fetch(`https://api.github.com/repos/${GITHUB_REPO}/git/refs`, {
+        method: "POST",
         headers,
         body: JSON.stringify({
-          message: "chore(db): update data permanen dari Portal Admin",
-          content: contentBase64,
-          ...(fileSha ? { sha: fileSha } : {}),
-          branch: GITHUB_DB_BRANCH,
+          ref: `refs/heads/${GITHUB_DB_BRANCH}`,
+          sha: baseCommitSha,
+        }),
+        cache: "no-store",
+      });
+    }
+
+    // 2. Buat Git Blob untuk data/db.json (Mendukung ukuran besar hingga >10MB)
+    const jsonString = JSON.stringify(data, null, 2);
+    const blobRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/git/blobs`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        content: jsonString,
+        encoding: "utf-8",
+      }),
+      cache: "no-store",
+    });
+
+    if (!blobRes.ok) {
+      const errText = await blobRes.text();
+      return { ok: false, error: `Gagal membuat blob GitHub (${blobRes.status}): ${errText}` };
+    }
+    const blobJson = await blobRes.json();
+    const blobSha = blobJson.sha;
+
+    // 3. Buat Git Tree baru
+    const treeRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/git/trees`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        base_tree: baseCommitSha,
+        tree: [
+          {
+            path: "data/db.json",
+            mode: "100644",
+            type: "blob",
+            sha: blobSha,
+          },
+        ],
+      }),
+      cache: "no-store",
+    });
+
+    if (!treeRes.ok) {
+      const errText = await treeRes.text();
+      return { ok: false, error: `Gagal membuat tree GitHub (${treeRes.status}): ${errText}` };
+    }
+    const treeJson = await treeRes.json();
+
+    // 4. Buat Commit baru di branch db-data
+    const commitRes = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/git/commits`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        message: "chore(db): simpan perubahan permanen dari Portal Admin",
+        tree: treeJson.sha,
+        parents: [baseCommitSha],
+      }),
+      cache: "no-store",
+    });
+
+    if (!commitRes.ok) {
+      const errText = await commitRes.text();
+      return { ok: false, error: `Gagal membuat commit GitHub (${commitRes.status}): ${errText}` };
+    }
+    const commitJson = await commitRes.json();
+
+    // 5. Update pointer branch db-data ke commit baru
+    const updateRefRes = await fetch(
+      `https://api.github.com/repos/${GITHUB_REPO}/git/refs/heads/${GITHUB_DB_BRANCH}`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          sha: commitJson.sha,
+          force: true,
         }),
         cache: "no-store",
       }
     );
 
-    if (!putRes.ok) {
-      const errText = await putRes.text();
-      console.error("GitHub API PUT gagal:", putRes.status, errText);
-      return false;
+    if (!updateRefRes.ok) {
+      const errText = await updateRefRes.text();
+      return { ok: false, error: `Gagal mengupdate branch (${updateRefRes.status}): ${errText}` };
     }
 
-    return true;
-  } catch (err) {
+    return { ok: true };
+  } catch (err: any) {
     console.error("Gagal menulis ke GitHub API:", err);
-    return false;
+    return { ok: false, error: err?.message || "Kesalahan jaringan ke GitHub." };
   }
 }
 
@@ -253,13 +330,12 @@ export async function getDb(): Promise<DatabaseSchema> {
     }
   }
 
-  // 2. Jika ada GITHUB_TOKEN (Database Permanen via GitHub)
-  if (GITHUB_TOKEN) {
-    // Gunakan cache memori singkat (2 detik) agar navigasi cepat
+  // 2. Jika berjalan di Vercel (atau GITHUB_TOKEN aktif), baca dari branch db-data di GitHub
+  if (process.env.VERCEL || getActiveGitHubToken()) {
     if (
       globalForDb.__mtsDbCache &&
       globalForDb.__mtsDbLastFetch &&
-      now - globalForDb.__mtsDbLastFetch < 2000
+      now - globalForDb.__mtsDbLastFetch < 1500
     ) {
       return globalForDb.__mtsDbCache;
     }
@@ -271,7 +347,7 @@ export async function getDb(): Promise<DatabaseSchema> {
     }
   }
 
-  // 3. Jika berjalan di lokal (bukan Vercel), baca dari file lokal
+  // 3. Jika berjalan di komputer lokal, baca dari file lokal data/db.json
   if (!process.env.VERCEL) {
     const localData = readLocalFileDb();
     if (localData) {
@@ -280,7 +356,7 @@ export async function getDb(): Promise<DatabaseSchema> {
     }
   }
 
-  // 4. Jika di Vercel tanpa GITHUB_TOKEN, utamakan memory cache dulu agar perubahan tidak hilang selama instance hidup
+  // 4. Fallback ke memory cache atau file lokal bawaan
   if (globalForDb.__mtsDbCache) {
     return globalForDb.__mtsDbCache;
   }
@@ -306,10 +382,19 @@ export async function saveDb(data: DatabaseSchema): Promise<boolean> {
     if (ok) return true;
   }
 
-  // 2. Simpan ke GitHub secara permanen jika GITHUB_TOKEN tersedia
-  if (GITHUB_TOKEN) {
-    const ok = await writeToGitHub(data);
-    if (ok) return true;
+  // 2. Simpan ke GitHub secara permanen jika token tersedia
+  const ghToken = getActiveGitHubToken();
+  if (ghToken) {
+    const res = await writeToGitHub(data, ghToken);
+    if (res.ok) {
+      // Jika di lokal, tulis juga ke file lokal agar sinkron
+      if (!process.env.VERCEL) {
+        try {
+          fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf-8");
+        } catch {}
+      }
+      return true;
+    }
   }
 
   // 3. Simpan ke file lokal jika di komputer lokal
@@ -320,9 +405,7 @@ export async function saveDb(data: DatabaseSchema): Promise<boolean> {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), "utf-8");
     return true;
   } catch (err) {
-    console.warn(
-      "Filesystem read-only (Vercel). Tambahkan GITHUB_TOKEN di Environment Variables Vercel untuk penyimpanan permanen."
-    );
+    console.warn("Filesystem read-only (Vercel).");
     return false;
   }
 }

@@ -20,6 +20,56 @@ export default function AdminGaleriPage() {
 
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  // Cloud storage token status (untuk Vercel)
+  const [storageStatus, setStorageStatus] = useState<{
+    checked: boolean;
+    active: boolean;
+    mode: string;
+  }>({ checked: false, active: true, mode: "local" });
+  const [ghTokenInput, setGhTokenInput] = useState("");
+  const [activatingToken, setActivatingToken] = useState(false);
+
+  const checkStorageStatus = async () => {
+    try {
+      const res = await fetch("/api/storage-token", { cache: "no-store" });
+      const data = await res.json();
+      if (data.success) {
+        setStorageStatus({
+          checked: true,
+          active: data.active,
+          mode: data.mode,
+        });
+      }
+    } catch {
+      // Abaikan jika gagal mengecek status
+    }
+  };
+
+  const handleActivateToken = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setActivatingToken(true);
+    setErrorMsg("");
+    setMessage("");
+    try {
+      const res = await fetch("/api/storage-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: ghTokenInput }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+      setMessage(data.message);
+      setGhTokenInput("");
+      setStorageStatus({ checked: true, active: true, mode: "github-cloud" });
+      fetchGallery();
+    } catch (err: any) {
+      setErrorMsg(err.message || "Gagal mengaktifkan penyimpanan permanen.");
+    } finally {
+      setActivatingToken(false);
+    }
+  };
 
   const fetchGallery = async () => {
     setLoading(true);
@@ -38,6 +88,7 @@ export default function AdminGaleriPage() {
 
   useEffect(() => {
     fetchGallery();
+    checkStorageStatus();
   }, []);
 
   // Handler unggah foto lokal dari komputer / HP dengan kompresi otomatis
@@ -85,6 +136,7 @@ export default function AdminGaleriPage() {
     e.preventDefault();
     setSaving(true);
     setMessage("");
+    setErrorMsg("");
 
     try {
       const res = await fetch("/api/gallery", {
@@ -97,7 +149,7 @@ export default function AdminGaleriPage() {
       if (!data.success) throw new Error(data.message);
 
       setIsModalOpen(false);
-      setMessage("Foto galeri berhasil ditambahkan.");
+      setMessage("Foto galeri berhasil ditambahkan secara permanen.");
       setFormData({
         title: "",
         description: "",
@@ -107,7 +159,7 @@ export default function AdminGaleriPage() {
       });
       fetchGallery();
     } catch (err: any) {
-      setMessage(err.message || "Gagal menambahkan foto galeri.");
+      setErrorMsg(err.message || "Gagal menambahkan foto galeri.");
     } finally {
       setSaving(false);
     }
@@ -115,16 +167,17 @@ export default function AdminGaleriPage() {
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Yakin ingin menghapus foto "${title}" dari galeri?`)) return;
+    setErrorMsg("");
+    setMessage("");
 
     try {
       const res = await fetch(`/api/gallery/${id}`, { method: "DELETE" });
       const data = await res.json();
-      if (data.success) {
-        setMessage("Foto galeri berhasil dihapus.");
-        fetchGallery();
-      }
-    } catch (err) {
-      alert("Gagal menghapus foto.");
+      if (!data.success) throw new Error(data.message || "Gagal menghapus foto.");
+      setMessage("Foto galeri berhasil dihapus secara permanen.");
+      fetchGallery();
+    } catch (err: any) {
+      setErrorMsg(err.message || "Gagal menghapus foto.");
     }
   };
 
@@ -140,7 +193,10 @@ export default function AdminGaleriPage() {
         </div>
 
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setErrorMsg("");
+            setIsModalOpen(true);
+          }}
           className="inline-flex items-center gap-2 bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm text-sm transition-colors"
         >
           <Plus className="w-4 h-4" />
@@ -148,10 +204,62 @@ export default function AdminGaleriPage() {
         </button>
       </div>
 
+      {/* Kotak Aktivasi 1-Klik Penyimpanan Permanen di Vercel */}
+      {storageStatus.checked && !storageStatus.active && (
+        <div className="p-5 bg-amber-50 border-2 border-amber-400 rounded-2xl space-y-3 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 className="font-bold text-amber-950 text-sm sm:text-base">
+                ⚡ Aktifkan Penyimpanan Cloud Permanen (Khusus Server Online Vercel)
+              </h3>
+              <p className="text-xs text-amber-900 mt-0.5 leading-relaxed">
+                Agar tambah &amp; hapus foto tersimpan permanen langsung dari website Vercel, masukkan{" "}
+                <strong>GitHub Token (Classic)</strong> Anda di bawah ini cukup 1 kali saja:
+              </p>
+            </div>
+            <a
+              href="https://github.com/settings/tokens/new?description=Database-MTs-Al-Falaahiyyah&scopes=repo"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center shrink-0 bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-colors"
+            >
+              1. Ambil Kode Token GitHub &rarr;
+            </a>
+          </div>
+
+          <form onSubmit={handleActivateToken} className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="password"
+              required
+              value={ghTokenInput}
+              onChange={(e) => setGhTokenInput(e.target.value)}
+              placeholder="2. Tempel kode token ghp_xxxxxxxxxxxxxxxxxxxx di sini..."
+              className="flex-1 px-3.5 py-2 rounded-xl border border-amber-400 bg-white text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700"
+            />
+            <button
+              type="submit"
+              disabled={activatingToken}
+              className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs sm:text-sm px-5 py-2 rounded-xl transition-colors disabled:opacity-50"
+            >
+              {activatingToken ? "Menghubungkan..." : "3. Aktifkan Permanen"}
+            </button>
+          </form>
+        </div>
+      )}
+
       {message && (
         <div className="p-3.5 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 animate-fadeIn">
-          <CheckCircle className="w-4 h-4 text-emerald-700" />
+          <CheckCircle className="w-4 h-4 text-emerald-700 shrink-0" />
           <span>{message}</span>
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="p-3.5 bg-red-50 border border-red-300 text-red-800 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between gap-2 animate-fadeIn">
+          <span>⚠️ {errorMsg}</span>
+          <button onClick={() => setErrorMsg("")} className="text-red-600 hover:text-red-900">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
 
@@ -221,6 +329,12 @@ export default function AdminGaleriPage() {
             </button>
 
             <h2 className="text-xl font-bold text-slate-900 mb-5">Tambah Foto ke Galeri</h2>
+
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-300 text-red-800 rounded-xl text-xs font-semibold">
+                ⚠️ {errorMsg}
+              </div>
+            )}
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
