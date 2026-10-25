@@ -23,12 +23,21 @@
     "announcementText": "Pendaftaran Peserta Didik Baru (PPDB) Tahun Ajaran 2025/2026 Telah Dibuka! Segera Daftarkan Putra-Putri Anda.",
     "isAnnouncementActive": true,
     "isPpdbActive": true,
-    "ppdbAcademicYear": "2025/2026",
+    "ppdbAcademicYear": "2026/2027",
     "socialMedia": {
       "facebook": "https://facebook.com",
       "instagram": "https://instagram.com",
       "youtube": "https://youtube.com"
-    }
+    },
+    "ppdbRequirements": [
+      "Mengisi Formulir Pendaftaran (Online atau Cetak)",
+      "Fotokopi Akta Kelahiran (2 Lembar)",
+      "Fotokopi Kartu Keluarga / KK (2 Lembar)",
+      "Fotokopi Ijazah / Surat Keterangan Lulus (SKL) SD/MI yang telah dilegalisir",
+      "Pas Foto 3x4 Calon Santri (3 Lembar, Latar Belakang Merah/Biru)",
+      "Fotokopi Kartu KIP / PKH (Bagi pemegang kartu bantuan)"
+    ],
+    "ppdbContactPhone": "6289654542542"
   },
   "news": [],
   "gallery": [
