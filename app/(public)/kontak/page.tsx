@@ -68,7 +68,7 @@ export default function KontakPage() {
                 {settings.schoolName}
               </h2>
               <p className="text-slate-600 mt-1 text-sm leading-relaxed">
-                Keluarga besar madrasah senantiasa terbuka menerima kunjungan silaturahmi para orang tua, calon santri, dan masyarakat.
+                Keluarga besar madrasah senantiasa terbuka menerima kunjungan silaturahmi para orang tua, calon peserta didik, dan masyarakat.
               </p>
             </div>
 

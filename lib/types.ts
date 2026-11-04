@@ -54,6 +54,8 @@ export interface SchoolSettings {
   headmasterName: string;
   headmasterSpeech: string;
   headmasterPhoto: string;
+  visionText?: string;
+  missions?: string[];
   logoUrl?: string;
   heroImage?: string;
   profileImage?: string;

@@ -46,7 +46,7 @@ export default function BeritaPage() {
             Berita &amp; Kegiatan Madrasah
           </h1>
           <p className="text-emerald-200 mt-3 text-base sm:text-lg max-w-2xl mx-auto">
-            Dokumentasi kabar terbaru, agenda, dan prestasi santri MTs Al Falaahiyyah Cikoneng Kulon Ganeas.
+            Dokumentasi kabar terbaru, agenda, dan prestasi peserta didik MTs Al Falaahiyyah Cikoneng Kulon Ganeas.
           </p>
         </div>
       </div>

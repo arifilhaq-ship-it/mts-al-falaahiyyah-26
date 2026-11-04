@@ -1,32 +1,67 @@
 import React from "react";
 import type { Metadata } from "next";
 import SectionHeading from "@/components/SectionHeading";
-import { BookOpen, ShieldCheck, Sparkles, Award, CheckCircle, Mosque } from "@/components/Icons";
+import { getSchoolSettings } from "@/lib/db";
 
 export const metadata: Metadata = {
   title: "Visi & Misi",
-  description: "Visi, misi, tujuan, dan 7 pilar karakter santri MTs Al Falaahiyyah Cikoneng Kulon Ganeas Sumedang.",
+  description:
+    "Visi, misi, tujuan, dan 7 pilar karakter peserta didik MTs Al Falaahiyyah Cikoneng Kulon Ganeas Sumedang.",
 };
 
-export default function VisiMisiPage() {
-  const missions = [
-    "Menyelenggarakan pendidikan Islam terpadu yang memadukan kurikulum Kementerian Agama, kurikulum nasional, dan nilai-nilai luhur pesantren.",
-    "Mengembangkan program tahsin dan tahfidzul Qur'an secara istiqomah guna mencetak generasi hafidz yang mengamalkan ajaran Al-Qur'an.",
-    "Menanamkan aqidah yang lurus, ibadah yang benar, serta pembiasaan akhlakul karimah dalam kehidupan sehari-hari.",
-    "Meningkatkan mutu proses belajar mengajar berbasis sains, teknologi informasi, dan literasi digital yang adaptif.",
-    "Membina potensi, minat, dan bakat santri melalui ragam kegiatan ekstrakurikuler kepanduan, olahraga, dan seni Islami.",
-    "Membangun lingkungan madrasah yang asri, bersih, aman, kekeluargaan, dan berbudaya Islami.",
-    "Mendorong terwujudnya santri berwawasan global yang mampu berkomunikasi dalam bahasa Arab dan Inggris.",
-  ];
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function VisiMisiPage() {
+  const settings = await getSchoolSettings();
+
+  const visionText =
+    settings.visionText ||
+    settings.tagline ||
+    "Terwujudnya Generasi Qur'ani, Berakhlakul Karimah, Unggul dalam Prestasi, dan Berwawasan Global";
+
+  const missions =
+    settings.missions && settings.missions.length > 0
+      ? settings.missions
+      : [
+          "Menyelenggarakan pendidikan Islam terpadu yang memadukan kurikulum Kementerian Agama, kurikulum nasional, dan nilai-nilai luhur keislaman.",
+          "Mengembangkan program tahsin dan tahfidzul Qur'an secara istiqomah guna mencetak generasi hafidz yang mengamalkan ajaran Al-Qur'an.",
+          "Menanamkan aqidah yang lurus, ibadah yang benar, serta pembiasaan akhlakul karimah dalam kehidupan sehari-hari.",
+          "Meningkatkan mutu proses belajar mengajar berbasis sains, teknologi informasi, dan literasi digital yang adaptif.",
+          "Membina potensi, minat, dan bakat peserta didik melalui ragam kegiatan ekstrakurikuler kepanduan, olahraga, dan seni Islami.",
+          "Membangun lingkungan madrasah yang asri, bersih, aman, kekeluargaan, dan berbudaya Islami.",
+          "Mendorong terwujudnya peserta didik berwawasan global yang mampu berkomunikasi dalam bahasa Arab dan Inggris.",
+        ];
 
   const pillars = [
-    { title: "Religius (Taqwa)", desc: "Menjadikan syariat Islam sebagai pedoman hidup melalui pembiasaan shalat, tilawah, dan dzikir." },
-    { title: "Jujur (Siddiq)", desc: "Menjunjung tinggi integritas, kebenaran dalam perkataan, kejujuran akademis, dan amanah." },
-    { title: "Disiplin (Istiqomah)", desc: "Menghargai waktu, tertib aturan madrasah, dan konsisten dalam menjalankan kewajiban." },
-    { title: "Santun (Akhlakul Karimah)", desc: "Membiasakan budaya 5S (Senyum, Salam, Sapa, Sopan, Santun) kepada orang tua, guru, dan sesama." },
-    { title: "Mandiri (Himmah)", desc: "Mampu mengurus diri sendiri, bertanggung jawab atas tugas belajar, dan tidak mudah berputus asa." },
-    { title: "Peduli (Mahabbah)", desc: "Peka terhadap kesusahan sesama, gemar berinfaq, serta menjaga kelestarian lingkungan madrasah." },
-    { title: "Berprestasi (Fathonah)", desc: "Memiliki daya juang tinggi untuk meraih keunggulan di bidang akademik maupun non-akademik." },
+    {
+      title: "Religius (Taqwa)",
+      desc: "Menjadikan syariat Islam sebagai pedoman hidup melalui pembiasaan shalat, tilawah, dan dzikir.",
+    },
+    {
+      title: "Jujur (Siddiq)",
+      desc: "Menjunjung tinggi integritas, kebenaran dalam perkataan, kejujuran akademis, dan amanah.",
+    },
+    {
+      title: "Disiplin (Istiqomah)",
+      desc: "Menghargai waktu, tertib aturan madrasah, dan konsisten dalam menjalankan kewajiban.",
+    },
+    {
+      title: "Santun (Akhlakul Karimah)",
+      desc: "Membiasakan budaya 5S (Senyum, Salam, Sapa, Sopan, Santun) kepada orang tua, guru, dan sesama.",
+    },
+    {
+      title: "Mandiri (Himmah)",
+      desc: "Mampu mengurus diri sendiri, bertanggung jawab atas tugas belajar, dan tidak mudah berputus asa.",
+    },
+    {
+      title: "Peduli (Mahabbah)",
+      desc: "Peka terhadap kesusahan sesama, gemar berinfaq, serta menjaga kelestarian lingkungan madrasah.",
+    },
+    {
+      title: "Berprestasi (Fathonah)",
+      desc: "Memiliki daya juang tinggi untuk meraih keunggulan di bidang akademik maupun non-akademik.",
+    },
   ];
 
   return (
@@ -41,7 +76,7 @@ export default function VisiMisiPage() {
             Visi &amp; Misi Madrasah
           </h1>
           <p className="text-emerald-200 mt-3 text-base sm:text-lg max-w-2xl mx-auto">
-            Pedoman utama dalam seluruh ikhtiar pendidikan di MTs Al Falaahiyyah Cikoneng Kulon Ganeas Sumedang.
+            Pedoman utama dalam seluruh ikhtiar pendidikan di {settings.schoolName || "MTs Al Falaahiyyah"} Cikoneng Kulon Ganeas Sumedang.
           </p>
         </div>
       </div>
@@ -51,13 +86,13 @@ export default function VisiMisiPage() {
         <div className="bg-gradient-to-br from-emerald-900 to-emerald-950 rounded-3xl p-8 sm:p-14 text-white shadow-xl relative overflow-hidden text-center max-w-4xl mx-auto">
           <div className="relative z-10 space-y-4">
             <span className="bg-amber-400 text-emerald-950 font-black text-xs uppercase px-3 py-1 rounded-full">
-              Visi MTs Al Falaahiyyah
+              Visi {settings.schoolName || "MTs Al Falaahiyyah"}
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-amber-300 leading-snug">
-              &ldquo;Terwujudnya Generasi Qur&apos;ani, Berakhlakul Karimah, Unggul dalam Prestasi, dan Berwawasan Global&rdquo;
+              &ldquo;{visionText}&rdquo;
             </h2>
             <p className="text-emerald-200 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed pt-2">
-              Visi ini menjadi komitmen luhur segenap pendidik dan tenaga kependidikan MTs Al Falaahiyyah dalam mendidik tunas-tunas bangsa di Cikoneng Kulon, Kecamatan Ganeas, Kabupaten Sumedang.
+              Visi ini menjadi komitmen luhur segenap pendidik dan tenaga kependidikan {settings.schoolName || "MTs Al Falaahiyyah"} dalam mendidik peserta didik di Cikoneng Kulon, Kecamatan Ganeas, Kabupaten Sumedang.
             </p>
           </div>
         </div>
@@ -68,7 +103,7 @@ export default function VisiMisiPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             badge="Langkah Nyata"
-            title="Misi MTs Al Falaahiyyah"
+            title={`Misi ${settings.schoolName || "MTs Al Falaahiyyah"}`}
             subtitle="Agenda strategis yang kami tempuh untuk merealisasikan visi madrasah secara berkelanjutan."
           />
 
@@ -90,11 +125,11 @@ export default function VisiMisiPage() {
         </div>
       </section>
 
-      {/* Bagian 7 Karakter Santri */}
+      {/* Bagian 7 Karakter Peserta Didik */}
       <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           badge="Karakter Islami"
-          title="7 Karakter Utama Santri Al Falaahiyyah"
+          title="7 Karakter Utama Peserta Didik Al Falaahiyyah"
           subtitle="Nilai-nilai kepribadian yang dibentuk melalui kurikulum pembiasaan harian di madrasah."
         />
 
@@ -114,7 +149,7 @@ export default function VisiMisiPage() {
                 <p className="text-slate-600 text-sm leading-relaxed">{pillar.desc}</p>
               </div>
               <div className="mt-4 pt-3 border-t border-slate-200/60 text-[11px] font-semibold text-emerald-700 uppercase tracking-wide">
-                Nilai Santri Al Falaahiyyah
+                Nilai Peserta Didik Al Falaahiyyah
               </div>
             </div>
           ))}

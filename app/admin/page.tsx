@@ -26,7 +26,7 @@ export default async function AdminDashboardPage() {
             Selamat Datang di Portal Manajemen MTs Al Falaahiyyah
           </h1>
           <p className="text-emerald-200 text-sm mt-1">
-            Kelola konten website, guru &amp; staf, publikasi berita, galeri kegiatan, serta data pendaftaran santri baru secara mudah dan terpusat.
+            Kelola konten website, guru &amp; staf, publikasi berita, galeri kegiatan, serta data pendaftaran peserta didik baru secara mudah dan terpusat.
           </p>
         </div>
 
@@ -102,7 +102,7 @@ export default async function AdminDashboardPage() {
           <div>
             <p className="text-xs font-bold uppercase text-slate-400">Pendaftar PPDB</p>
             <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">{ppdb.length}</p>
-            <p className="text-[11px] text-emerald-700 font-medium mt-0.5">Calon santri terdaftar</p>
+            <p className="text-[11px] text-emerald-700 font-medium mt-0.5">Calon peserta didik terdaftar</p>
           </div>
           <div className="w-11 h-11 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center">
             <Users className="w-6 h-6" />
@@ -128,7 +128,7 @@ export default async function AdminDashboardPage() {
         {/* Pendaftar PPDB Terbaru */}
         <div className="lg:col-span-7 bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-            <h3 className="font-extrabold text-slate-900 text-lg">Pendaftaran Santri Terbaru</h3>
+            <h3 className="font-extrabold text-slate-900 text-lg">Pendaftaran Peserta Didik Terbaru</h3>
             <Link href="/admin/ppdb" className="text-xs font-bold text-emerald-800 hover:underline">
               Lihat Semua &rarr;
             </Link>

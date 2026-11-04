@@ -86,7 +86,7 @@ export default function Footer({ initialSettings }: FooterProps) {
               <li>
                 <Link href="/ppdb" className="text-emerald-200 hover:text-amber-300 transition-colors flex items-center gap-2">
                   <ArrowRight className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="font-semibold text-amber-300">Pendaftaran Santri Baru (PPDB)</span>
+                  <span className="font-semibold text-amber-300">Pendaftaran Peserta Didik Baru (PPDB)</span>
                 </Link>
               </li>
               <li>

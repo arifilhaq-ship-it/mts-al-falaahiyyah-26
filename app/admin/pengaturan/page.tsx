@@ -6,6 +6,7 @@ import { Settings, CheckCircle, ShieldCheck } from "@/components/Icons";
 
 export default function AdminPengaturanPage() {
   const [settings, setSettings] = useState<SchoolSettings | null>(null);
+  const [missionsText, setMissionsText] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -28,8 +29,23 @@ export default function AdminPengaturanPage() {
         fetch("/api/auth/credentials", { cache: "no-store" }),
       ]);
       const data = await resSettings.json();
-      if (data.success) {
-        setSettings(data.data);
+      if (data.success && data.data) {
+        const s: SchoolSettings = data.data;
+        setSettings(s);
+        const defaultMissions = [
+          "Menyelenggarakan pendidikan Islam terpadu yang memadukan kurikulum Kementerian Agama, kurikulum nasional, dan nilai-nilai luhur keislaman.",
+          "Mengembangkan program tahsin dan tahfidzul Qur'an secara istiqomah guna mencetak generasi hafidz yang mengamalkan ajaran Al-Qur'an.",
+          "Menanamkan aqidah yang lurus, ibadah yang benar, serta pembiasaan akhlakul karimah dalam kehidupan sehari-hari.",
+          "Meningkatkan mutu proses belajar mengajar berbasis sains, teknologi informasi, dan literasi digital yang adaptif.",
+          "Membina potensi, minat, dan bakat peserta didik melalui ragam kegiatan ekstrakurikuler kepanduan, olahraga, dan seni Islami.",
+          "Membangun lingkungan madrasah yang asri, bersih, aman, kekeluargaan, dan berbudaya Islami.",
+          "Mendorong terwujudnya peserta didik berwawasan global yang mampu berkomunikasi dalam bahasa Arab dan Inggris.",
+        ];
+        setMissionsText(
+          s.missions && s.missions.length > 0
+            ? s.missions.join("\n")
+            : defaultMissions.join("\n")
+        );
       }
       if (resCreds.ok) {
         const credJson = await resCreds.json();
@@ -153,14 +169,25 @@ export default function AdminPengaturanPage() {
     setMessage("");
 
     try {
+      const parsedMissions = missionsText
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+
+      const payload: SchoolSettings = {
+        ...settings,
+        missions: parsedMissions,
+      };
+
       const res = await fetch("/api/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success) {
-        setMessage("Informasi pengaturan madrasah berhasil diperbarui.");
+        setSettings(data.data);
+        setMessage("Informasi pengaturan, Visi & Misi madrasah berhasil diperbarui.");
       } else {
         throw new Error(data.message);
       }
@@ -643,7 +670,54 @@ export default function AdminPengaturanPage() {
           </div>
         </div>
 
-        {/* Seksi 4: Banner Pengumuman & PPDB */}
+        {/* Seksi 5: Pengaturan Visi & Misi Madrasah */}
+        <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-lg font-bold text-slate-900">
+              Visi &amp; Misi Madrasah (Tampil di Halaman Visi Misi)
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Atur kalimat Visi utama dan poin-poin Misi MTs Al Falaahiyyah.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                Kalimat Visi Madrasah
+              </label>
+              <textarea
+                name="visionText"
+                rows={2}
+                value={
+                  settings.visionText ??
+                  "Terwujudnya Generasi Qur'ani, Berakhlakul Karimah, Unggul dalam Prestasi, dan Berwawasan Global"
+                }
+                onChange={handleChange}
+                placeholder="Masukkan kalimat Visi Madrasah..."
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-700 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                Daftar Misi Madrasah (Tulis 1 Poin Misi per Baris / Tekan Enter untuk Poin Baru)
+              </label>
+              <textarea
+                rows={7}
+                value={missionsText}
+                onChange={(e) => setMissionsText(e.target.value)}
+                placeholder="Menyelenggarakan pendidikan Islam terpadu...&#10;Mengembangkan program tahsin dan tahfidzul Qur'an..."
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-700 focus:outline-none leading-relaxed"
+              />
+              <p className="text-xs text-slate-500 mt-1">
+                *Setiap baris akan otomatis menjadi poin misi bernomor urut (1, 2, 3, dst.) di halaman Visi &amp; Misi.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Seksi 6: Banner Pengumuman & PPDB */}
         <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
           <h2 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
             Banner Pengumuman &amp; PPDB
@@ -683,7 +757,7 @@ export default function AdminPengaturanPage() {
                   onChange={handleChange}
                   className="w-4 h-4 text-emerald-800 rounded focus:ring-emerald-700"
                 />
-                <span>Buka Status Pendaftaran Santri Baru (PPDB)</span>
+                <span>Buka Status Pendaftaran Peserta Didik Baru (PPDB)</span>
               </label>
             </div>
 

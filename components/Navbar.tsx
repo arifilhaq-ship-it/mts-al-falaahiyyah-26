@@ -199,7 +199,7 @@ export default function Navbar({ initialSettings }: NavbarProps) {
                   href="/ppdb"
                   className="w-full flex items-center justify-center gap-2 bg-emerald-800 text-white py-3 px-4 rounded-xl font-bold text-center shadow-md"
                 >
-                  <span>Pendaftaran Santri Baru (PPDB)</span>
+                  <span>Pendaftaran Peserta Didik Baru (PPDB)</span>
                   <ArrowRight className="w-4 h-4 text-amber-300" />
                 </Link>
 

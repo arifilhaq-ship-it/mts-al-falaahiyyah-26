@@ -61,7 +61,7 @@ export default function AdminPpdbPage() {
               "Fotokopi Akta Kelahiran (2 Lembar)",
               "Fotokopi Kartu Keluarga / KK (2 Lembar)",
               "Fotokopi Ijazah / Surat Keterangan Lulus (SKL) SD/MI yang telah dilegalisir",
-              "Pas Foto 3x4 Calon Santri (3 Lembar, Latar Belakang Merah/Biru)",
+              "Pas Foto 3x4 Calon Peserta Didik (3 Lembar, Latar Belakang Merah/Biru)",
               "Fotokopi Kartu KIP / PKH (Bagi pemegang kartu bantuan)",
             ].join("\n");
         setRequirementsText(reqs);
@@ -144,7 +144,7 @@ export default function AdminPpdbPage() {
       return;
     }
 
-    const headers = ["No Registrasi", "Nama Calon Santri", "NISN", "Gender", "Tempat Lahir", "Tgl Lahir", "Asal Sekolah", "Nama Wali", "No WA Wali", "Program", "Status", "Tgl Daftar"];
+    const headers = ["No Registrasi", "Nama Calon Peserta Didik", "NISN", "Gender", "Tempat Lahir", "Tgl Lahir", "Asal Sekolah", "Nama Wali", "No WA Wali", "Program", "Status", "Tgl Daftar"];
     const rows = list.map((item) => [
       item.registrationNo,
       `"${item.fullName}"`,
@@ -188,7 +188,7 @@ export default function AdminPpdbPage() {
             Pusat Pengelolaan PPDB
           </h1>
           <p className="text-slate-600 text-sm mt-0.5">
-            Kelola pendaftar calon santri baru serta atur jadwal gelombang, syarat, status buka/tutup pendaftaran.
+            Kelola pendaftar calon peserta didik baru serta atur jadwal gelombang, syarat, status buka/tutup pendaftaran.
           </p>
         </div>
 
@@ -228,7 +228,7 @@ export default function AdminPpdbPage() {
       )}
 
       {/* ============================================================== */}
-      {/* TAB 1: DATA PENDAFTAR SANTRI BARU */}
+      {/* TAB 1: DATA PENDAFTAR PESERTA DIDIK BARU */}
       {/* ============================================================== */}
       {activeTab === "pendaftar" && (
         <div className="space-y-4 animate-fadeIn">
@@ -238,7 +238,7 @@ export default function AdminPpdbPage() {
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Cari nama santri, nomor pendaftaran, atau asal sekolah..."
+                placeholder="Cari nama peserta didik, nomor pendaftaran, atau asal sekolah..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-700"
@@ -285,7 +285,7 @@ export default function AdminPpdbPage() {
                   <thead className="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
                     <tr>
                       <th className="p-4">No. Registrasi</th>
-                      <th className="p-4">Nama Calon Santri</th>
+                      <th className="p-4">Nama Calon Peserta Didik</th>
                       <th className="p-4">Asal Sekolah</th>
                       <th className="p-4">Pilihan Program</th>
                       <th className="p-4">Kontak Wali</th>
@@ -316,7 +316,7 @@ export default function AdminPpdbPage() {
                           <div className="font-semibold text-slate-800">{item.parentName}</div>
                           <a
                             href={`https://wa.me/${item.parentPhone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-                              `Assalamu'alaikum Bpk/Ibu ${item.parentName}, kami dari Panitia PPDB ${settings.schoolName} terkait pendaftaran santri baru an. ${item.fullName} (${item.registrationNo}).`
+                              `Assalamu'alaikum Bpk/Ibu ${item.parentName}, kami dari Panitia PPDB ${settings.schoolName} terkait pendaftaran peserta didik baru an. ${item.fullName} (${item.registrationNo}).`
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -379,10 +379,10 @@ export default function AdminPpdbPage() {
                   />
                   <div>
                     <span className="font-bold text-slate-900 text-sm block">
-                      Buka Pendaftaran Calon Santri Baru (PPDB Online)
+                      Buka Pendaftaran Calon Peserta Didik Baru (PPDB Online)
                     </span>
                     <span className="text-xs text-slate-600 block">
-                      Jika dinonaktifkan, formulir pendaftaran online akan ditutup dan menampilkan pesan pemberitahuan ramah bagi orang tua calon santri.
+                      Jika dinonaktifkan, formulir pendaftaran online akan ditutup dan menampilkan pesan pemberitahuan ramah bagi orang tua calon peserta didik.
                     </span>
                   </div>
                 </label>
@@ -537,7 +537,7 @@ export default function AdminPpdbPage() {
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
             <h2 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
               <FileText className="w-5 h-5 text-emerald-700" />
-              <span>Daftar Persyaratan &amp; Dokumen Calon Santri</span>
+              <span>Daftar Persyaratan &amp; Dokumen Calon Peserta Didik</span>
             </h2>
 
             <div>

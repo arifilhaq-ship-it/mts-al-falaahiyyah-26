@@ -100,7 +100,7 @@ export default function HeroBanner({
                 href="/ppdb"
                 className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-extrabold px-6 py-3.5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base"
               >
-                <span>Daftar Santri Baru (PPDB)</span>
+                <span>Daftar Peserta Didik Baru (PPDB)</span>
                 <ArrowRight className="w-5 h-5" />
               </Link>
 

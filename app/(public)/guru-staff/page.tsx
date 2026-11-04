@@ -51,7 +51,7 @@ export default function GuruStaffPage() {
             Guru &amp; Tenaga Kependidikan
           </h1>
           <p className="text-emerald-200 mt-3 text-base sm:text-lg max-w-2xl mx-auto">
-            Dewan asatidz dan pendidik berdedikasi membimbing santri MTs Al Falaahiyyah Cikoneng Kulon Ganeas.
+            Dewan asatidz dan pendidik berdedikasi membimbing peserta didik MTs Al Falaahiyyah Cikoneng Kulon Ganeas.
           </p>
         </div>
       </div>

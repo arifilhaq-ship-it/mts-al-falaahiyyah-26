@@ -99,11 +99,11 @@ export default function PpdbPage() {
   };
 
   const steps = [
-    { num: "01", title: "Isi Formulir Online", desc: "Lengkapi data diri calon santri dan kontak wali secara teliti melalui form di bawah ini." },
+    { num: "01", title: "Isi Formulir Online", desc: "Lengkapi data diri calon peserta didik dan kontak wali secara teliti melalui form di bawah ini." },
     { num: "02", title: "Konfirmasi WhatsApp", desc: "Kirim bukti konfirmasi pendaftaran kepada panitia PPDB untuk verifikasi berkas." },
-    { num: "03", title: "Tes Pemetaan Minat & Baca Al-Qur'an", desc: "Observasi ramah santri meliputi baca Al-Qur'an, praktek shalat, dan wawancara singkat." },
+    { num: "03", title: "Tes Pemetaan Minat & Baca Al-Qur'an", desc: "Observasi ramah peserta didik meliputi baca Al-Qur'an, praktek shalat, dan wawancara singkat." },
     { num: "04", title: "Pengumuman Hasil", desc: "Hasil seleksi diumumkan melalui website dan pesan resmi WhatsApp panitia." },
-    { num: "05", title: "Daftar Ulang & Matsama", desc: "Pengambilan atribut seragam dan mengikuti Masa Ta'aruf Santri Madrasah (Matsama)." },
+    { num: "05", title: "Daftar Ulang & Matsama", desc: "Pengambilan atribut seragam dan mengikuti Masa Ta'aruf Siswa Madrasah (Matsama)." },
   ];
 
   // Mengambil daftar syarat dari pengaturan admin
@@ -115,7 +115,7 @@ export default function PpdbPage() {
           "Fotokopi Akta Kelahiran (2 Lembar)",
           "Fotokopi Kartu Keluarga / KK (2 Lembar)",
           "Fotokopi Ijazah / Surat Keterangan Lulus (SKL) SD/MI yang telah dilegalisir",
-          "Pas Foto 3x4 Calon Santri (3 Lembar, Latar Belakang Merah/Biru)",
+          "Pas Foto 3x4 Calon Peserta Didik (3 Lembar, Latar Belakang Merah/Biru)",
           "Fotokopi Kartu KIP / PKH (Bagi pemegang kartu bantuan)",
         ];
 
@@ -176,7 +176,7 @@ export default function PpdbPage() {
         <SectionHeading
           badge="Tahapan Seleksi"
           title="Alur Pendaftaran 5 Langkah Mudah"
-          subtitle="Proses pendaftaran santri baru dirancang mudah, ramah, dan transparan."
+          subtitle="Proses pendaftaran peserta didik baru dirancang mudah, ramah, dan transparan."
         />
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -201,7 +201,7 @@ export default function PpdbPage() {
           <div className="bg-white rounded-3xl p-8 sm:p-10 shadow-sm border border-slate-200">
             <h3 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">
               <FileText className="w-6 h-6 text-emerald-800" />
-              <span>Persyaratan &amp; Dokumen Calon Santri Baru</span>
+              <span>Persyaratan &amp; Dokumen Calon Peserta Didik Baru</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -220,7 +220,7 @@ export default function PpdbPage() {
       <section id="form-pendaftaran" className="py-16 sm:py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           badge="Formulir Online"
-          title={`Pendaftaran Calon Santri ${settings.schoolName}`}
+          title={`Pendaftaran Calon Peserta Didik ${settings.schoolName}`}
           subtitle="Data pendaftaran akan langsung tersimpan di sistem administrasi madrasah."
         />
 
@@ -240,7 +240,7 @@ export default function PpdbPage() {
             <div className="pt-2">
               <a
                 href={`https://wa.me/${contactWa}?text=${encodeURIComponent(
-                  `Assalamu'alaikum Panitia PPDB ${settings.schoolName}, saya ingin menanyakan informasi mengenai pendaftaran santri baru Tahun Ajaran ${settings.ppdbAcademicYear || "2025/2026"}.`
+                  `Assalamu'alaikum Panitia PPDB ${settings.schoolName}, saya ingin menanyakan informasi mengenai pendaftaran peserta didik baru Tahun Ajaran ${settings.ppdbAcademicYear || "2025/2026"}.`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -300,7 +300,7 @@ export default function PpdbPage() {
                 {/* Nama Lengkap */}
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Nama Lengkap Calon Santri *
+                    Nama Lengkap Calon Peserta Didik *
                   </label>
                   <input
                     type="text"

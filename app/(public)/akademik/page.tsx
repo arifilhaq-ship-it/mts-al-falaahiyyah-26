@@ -27,12 +27,12 @@ export default function AkademikPage() {
   ];
 
   const extracurriculars = [
-    { name: "Pramuka Gugus Depan", desc: "Kepanduan wajib membentuk kedisiplinan, kemandirian, dan kepemimpinan santri." },
+    { name: "Pramuka Gugus Depan", desc: "Kepanduan wajib membentuk kedisiplinan, kemandirian, dan kepemimpinan peserta didik." },
     { name: "Hadroh & Rebana", desc: "Seni musik Islami dan shalawat nabi untuk berbagai peringatan hari besar Islam." },
-    { name: "Tahfidz Club", desc: "Bimbingan hafalan Al-Qur'an intensif ba'da ashar bagi santri peminatan khusus." },
+    { name: "Tahfidz Club", desc: "Bimbingan hafalan Al-Qur'an intensif ba'da ashar bagi peserta didik peminatan khusus." },
     { name: "Pencak Silat Al-Hikmah", desc: "Olahraga bela diri tradisional mengasah ketangkasan fisik, mental, dan spiritual." },
     { name: "Palang Merah Remaja (PMR)", desc: "Kecakapan pertolongan pertama pada kecelakaan (P3K) dan jiwa kerelawanan sosial." },
-    { name: "English & Arabic Club", desc: "Klub bahasa asing untuk melatih percakapan santai, pidato, dan debat siswa." },
+    { name: "English & Arabic Club", desc: "Klub bahasa asing untuk melatih percakapan santai, pidato, dan debat peserta didik." },
   ];
 
   return (
@@ -82,7 +82,7 @@ export default function AkademikPage() {
           <SectionHeading
             badge="Kurikulum Nasional"
             title="Mata Pelajaran Umum &amp; Sains"
-            subtitle="Mempersiapkan santri dengan kemampuan nalar logis, literasi, numerasi, dan sains teknologi."
+            subtitle="Mempersiapkan peserta didik dengan kemampuan nalar logis, literasi, numerasi, dan sains teknologi."
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -106,7 +106,7 @@ export default function AkademikPage() {
       <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           badge="Pengembangan Bakat"
-          title="Ekstrakurikuler Santri"
+          title="Ekstrakurikuler Peserta Didik"
           subtitle="Wadah penyaluran bakat, kepemimpinan, kepedulian sosial, dan kebugaran jasmani."
         />
 

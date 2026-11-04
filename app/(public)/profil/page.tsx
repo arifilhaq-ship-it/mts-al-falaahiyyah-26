@@ -21,7 +21,7 @@ export default async function ProfilPage() {
     { title: "Masjid / Musholla Al Falaahiyyah", desc: "Pusat kegiatan shalat berjamaah, dhuha bersama, kajian kitab, dan halaqah tahfidz." },
     { title: "Perpustakaan & Pojok Literasi", desc: "Koleksi buku keagamaan, kitab rujukan, buku teks pelajaran, dan ensiklopedia Islam." },
     { title: "Lapangan Olahraga & Upacara", desc: "Fasilitas kegiatan apel bendera, senam sehat, futsal, voli, dan latihan pramuka." },
-    { title: "Ruang UKS & Konseling", desc: "Pelayanan kesehatan pertama santri dan bimbingan konseling untuk pembinaan karakter." },
+    { title: "Ruang UKS & Konseling", desc: "Pelayanan kesehatan pertama peserta didik dan bimbingan konseling untuk pembinaan karakter." },
   ];
 
   return (
@@ -59,7 +59,7 @@ export default async function ProfilPage() {
                 Berada di wilayah yang asri dan kondusif untuk menuntut ilmu, madrasah ini terus bertransformasi mengimbangi dinamika zaman tanpa meninggalkan jati diri ketawadhuan pesantren salaf. Kurikulum yang diterapkan secara harmonis mengintegrasikan standar nasional pendidikan Kementerian Agama Republik Indonesia dengan penguatan tahfidz Al-Qur&apos;an dan kajian kitab kuning.
               </p>
               <p>
-                Hingga kini, MTs Al Falaahiyyah terus dipercaya oleh para orang tua santri dari berbagai pelosok Sumedang dan sekitarnya sebagai kawah candradimuka tempat putra-putri mereka dibina menjadi generasi yang cerdas pikirannya dan mulia pekertinya.
+                Hingga kini, MTs Al Falaahiyyah terus dipercaya oleh para orang tua peserta didik dari berbagai pelosok Sumedang dan sekitarnya sebagai kawah candradimuka tempat putra-putri mereka dibina menjadi generasi yang cerdas pikirannya dan mulia pekertinya.
               </p>
             </div>
           </div>
@@ -140,7 +140,7 @@ export default async function ProfilPage() {
         <SectionHeading
           badge="Sarana Prasarana"
           title="Fasilitas Penunjang Pembelajaran"
-          subtitle="Sarana yang memadai disiapkan untuk kenyamanan proses belajar mengajar dan pembinaan ibadah santri."
+          subtitle="Sarana yang memadai disiapkan untuk kenyamanan proses belajar mengajar dan pembinaan ibadah peserta didik."
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

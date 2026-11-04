@@ -155,7 +155,7 @@ export default async function DetailBeritaPage({ params }: { params: { slug: str
               <Sparkles className="w-8 h-8 text-amber-400 mx-auto" />
               <h4 className="font-extrabold text-lg text-white">PPDB MTs Al Falaahiyyah</h4>
               <p className="text-xs text-emerald-200 leading-relaxed">
-                Pendaftaran santri baru telah dibuka. Daftarkan putra-putri Anda sekarang secara online.
+                Pendaftaran peserta didik baru telah dibuka. Daftarkan putra-putri Anda sekarang secara online.
               </p>
               <Link
                 href="/ppdb"

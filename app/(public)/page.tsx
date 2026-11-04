@@ -46,7 +46,7 @@ export default async function HomePage() {
             </div>
             <div className="space-y-1">
               <div className="text-3xl sm:text-4xl font-extrabold text-amber-400">8+</div>
-              <div className="text-xs sm:text-sm text-emerald-100 font-medium">Pilihan Ekstrakurikuler Santri</div>
+              <div className="text-xs sm:text-sm text-emerald-100 font-medium">Pilihan Ekstrakurikuler Peserta Didik</div>
             </div>
           </div>
         </div>

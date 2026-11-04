@@ -188,7 +188,7 @@ export default function AdminGaleriPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900">Manajemen Galeri Foto</h1>
           <p className="text-slate-600 text-sm mt-0.5">
-            Unggah dan kelola dokumentasi foto kegiatan santri dan sarana madrasah.
+            Unggah dan kelola dokumentasi foto kegiatan peserta didik dan sarana madrasah.
           </p>
         </div>
 

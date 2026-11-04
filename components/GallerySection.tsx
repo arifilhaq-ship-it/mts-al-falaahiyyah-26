@@ -19,8 +19,8 @@ export default function GallerySection({ gallery }: GallerySectionProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           badge="Dokumentasi"
-          title="Galeri Aktivitas Santri"
-          subtitle="Potret suasana belajar, kegiatan keagamaan, dan prestasi santri MTs Al Falaahiyyah."
+          title="Galeri Aktivitas Peserta Didik"
+          subtitle="Potret suasana belajar, kegiatan keagamaan, dan prestasi peserta didik MTs Al Falaahiyyah."
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -27,13 +27,13 @@ const programs = [
   {
     title: "Bahasa Asing (Arab & Inggris)",
     badge: "Bilingual",
-    desc: "Latihan muhadatsah yaumiyyah, vocabulary building, dan pidato (muhadharah 3 bahasa) untuk menumbuhkan rasa percaya diri santri di kancah global.",
+    desc: "Latihan muhadatsah yaumiyyah, vocabulary building, dan pidato (muhadharah 3 bahasa) untuk menumbuhkan rasa percaya diri peserta didik di kancah global.",
     icon: Sparkles,
     color: "from-teal-600 to-emerald-900",
   },
   {
     title: "Pembiasaan Shalat & Dhuha",
-    badge: "Karakter Santri",
+    badge: "Karakter Peserta Didik",
     desc: "Rutinitas shalat Dhuha berjamaah setiap pagi, tadarus Al-Qur'an, dan shalat Dzuhur berjamaah mendidik kedisiplinan serta ketenangan batin.",
     icon: Award,
     color: "from-emerald-800 to-emerald-950",
@@ -54,7 +54,7 @@ export default function ProgramsSection() {
         <SectionHeading
           badge="Pendidikan Terpadu"
           title="Program Unggulan MTs Al Falaahiyyah"
-          subtitle="Menggabungkan kurikulum pendidikan madrasah, nilai pesantren, dan pengembangan potensi minat bakat santri."
+          subtitle="Menggabungkan kurikulum pendidikan madrasah, nilai pesantren, dan pengembangan potensi minat bakat peserta didik."
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
