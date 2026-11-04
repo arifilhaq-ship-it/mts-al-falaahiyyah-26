@@ -20,6 +20,9 @@ export interface GalleryItem {
   category: "Kegiatan Belajar" | "Ekstrakurikuler" | "PHBI & Keagamaan" | "Prestasi" | "Fasilitas";
   imageUrl: string;
   date: string;
+  sourceType?: "upload" | "instagram" | "facebook" | "youtube";
+  sourceUrl?: string;
+  embedUrl?: string;
 }
 
 export interface Teacher {
