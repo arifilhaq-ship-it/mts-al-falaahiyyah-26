@@ -152,16 +152,7 @@ export default function AdminGaleriPage() {
   // Handler saat link ditempel (paste) langsung otomatis ambil data
   const handleSocialPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const pastedText = e.clipboardData.getData("text");
-    if (
-      pastedText &&
-      (pastedText.includes("instagram.com") ||
-        pastedText.includes("instagr.am") ||
-        pastedText.includes("facebook.com") ||
-        pastedText.includes("fb.watch") ||
-        pastedText.includes("fb.com") ||
-        pastedText.includes("youtube.com") ||
-        pastedText.includes("youtu.be"))
-    ) {
+    if (pastedText && (pastedText.startsWith("http://") || pastedText.startsWith("https://"))) {
       setSocialUrlInput(pastedText);
       fetchFromSocialUrl(pastedText);
     }
@@ -286,6 +277,20 @@ export default function AdminGaleriPage() {
       return (
         <span className="absolute top-2 right-2 bg-red-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow">
           YouTube
+        </span>
+      );
+    }
+    if (sourceType === "tiktok") {
+      return (
+        <span className="absolute top-2 right-2 bg-slate-900 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow">
+          TikTok
+        </span>
+      );
+    }
+    if (sourceType === "social") {
+      return (
+        <span className="absolute top-2 right-2 bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow">
+          Sosmed
         </span>
       );
     }

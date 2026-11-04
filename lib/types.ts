@@ -1,3 +1,11 @@
+export type SocialSourceType =
+  | "upload"
+  | "instagram"
+  | "facebook"
+  | "youtube"
+  | "tiktok"
+  | "social";
+
 export interface NewsItem {
   id: string;
   title: string;
@@ -11,6 +19,9 @@ export interface NewsItem {
   isPublished: boolean;
   views?: number;
   tags?: string[];
+  sourceType?: SocialSourceType;
+  sourceUrl?: string;
+  embedUrl?: string;
 }
 
 export interface GalleryItem {
@@ -20,7 +31,7 @@ export interface GalleryItem {
   category: "Kegiatan Belajar" | "Ekstrakurikuler" | "PHBI & Keagamaan" | "Prestasi" | "Fasilitas";
   imageUrl: string;
   date: string;
-  sourceType?: "upload" | "instagram" | "facebook" | "youtube";
+  sourceType?: SocialSourceType;
   sourceUrl?: string;
   embedUrl?: string;
 }

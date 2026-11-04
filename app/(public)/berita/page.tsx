@@ -3,10 +3,47 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { defaultNews } from "@/lib/data-defaults";
-import { NewsItem } from "@/lib/types";
+import { NewsItem, SocialSourceType } from "@/lib/types";
 import { Search, Calendar, User, ArrowRight } from "@/components/Icons";
 
 const categories = ["Semua", "Keagamaan", "Prestasi", "Pengumuman", "Kegiatan Siswa", "Akademik"];
+
+function renderPlatformBadge(sourceType?: SocialSourceType) {
+  if (!sourceType || sourceType === "upload") return null;
+  if (sourceType === "instagram") {
+    return (
+      <span className="bg-gradient-to-r from-pink-600 via-purple-600 to-amber-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
+        Instagram
+      </span>
+    );
+  }
+  if (sourceType === "facebook") {
+    return (
+      <span className="bg-blue-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
+        Facebook
+      </span>
+    );
+  }
+  if (sourceType === "youtube") {
+    return (
+      <span className="bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
+        ▶ YouTube
+      </span>
+    );
+  }
+  if (sourceType === "tiktok") {
+    return (
+      <span className="bg-slate-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
+        TikTok
+      </span>
+    );
+  }
+  return (
+    <span className="bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow">
+      Sosmed
+    </span>
+  );
+}
 
 export default function BeritaPage() {
   const [newsItems, setNewsItems] = useState<NewsItem[]>(defaultNews);
@@ -107,15 +144,25 @@ export default function BeritaPage() {
                 className="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-card hover:shadow-cardHover transition-all duration-300 flex flex-col group"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                  <img
-                    src={item.coverImage}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3">
+                  {item.coverImage ? (
+                    <img
+                      src={item.coverImage}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : item.embedUrl ? (
+                    <iframe
+                      src={item.embedUrl}
+                      title={item.title}
+                      className="w-full h-full border-0 pointer-events-none"
+                      loading="lazy"
+                    />
+                  ) : null}
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
                     <span className="bg-emerald-950/90 backdrop-blur-sm text-amber-300 text-xs font-bold px-3 py-1 rounded-full shadow">
                       {item.category}
                     </span>
+                    {renderPlatformBadge(item.sourceType)}
                   </div>
                 </div>
 
@@ -149,6 +196,17 @@ export default function BeritaPage() {
                       <span>Baca Lengkap</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
+
+                    {item.sourceUrl && (
+                      <a
+                        href={item.sourceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] font-semibold text-slate-500 hover:text-emerald-800"
+                      >
+                        Sumber &rarr;
+                      </a>
+                    )}
                   </div>
                 </div>
               </article>

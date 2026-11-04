@@ -61,6 +61,20 @@ export default function GaleriPage() {
         </span>
       );
     }
+    if (sourceType === "tiktok") {
+      return (
+        <span className="bg-slate-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md">
+          TikTok
+        </span>
+      );
+    }
+    if (sourceType === "social") {
+      return (
+        <span className="bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md">
+          Sosmed
+        </span>
+      );
+    }
     return null;
   };
 

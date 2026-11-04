@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { NewsItem } from "@/lib/types";
-import { Plus, Edit3, Trash2, Eye, X, Search, CheckCircle } from "@/components/Icons";
+import { NewsItem, SocialSourceType } from "@/lib/types";
+import { Plus, Edit3, Trash2, X, CheckCircle } from "@/components/Icons";
 
 export default function AdminBeritaPage() {
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -18,7 +18,16 @@ export default function AdminBeritaPage() {
     category: "Keagamaan" as NewsItem["category"],
     coverImage: "",
     isPublished: true,
+    sourceType: "upload" as SocialSourceType,
+    sourceUrl: "",
+    embedUrl: "",
   });
+
+  // Social media import states
+  const [socialUrlInput, setSocialUrlInput] = useState("");
+  const [fetchingSocial, setFetchingSocial] = useState(false);
+  const [socialNotice, setSocialNotice] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -35,6 +44,80 @@ export default function AdminBeritaPage() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  // Fungsi ambil otomatis dari link Instagram, Facebook, YouTube, TikTok, dan Sosmed lainnya
+  const fetchFromSocialUrl = async (targetUrl: string) => {
+    const trimmed = targetUrl.trim();
+    if (!trimmed) return;
+
+    setFetchingSocial(true);
+    setErrorMsg("");
+    setSocialNotice("");
+
+    try {
+      const res = await fetch("/api/social-meta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: trimmed }),
+      });
+      const result = await res.json();
+      if (!result.success) {
+        throw new Error(result.message || "Gagal mengambil data dari tautan tersebut.");
+      }
+
+      const meta = result.data;
+      const fullContent: string = meta.description || meta.title || "";
+      const autoExcerpt =
+        fullContent.length > 160
+          ? fullContent.replace(/\s+/g, " ").slice(0, 157).trim() + "..."
+          : fullContent.replace(/\s+/g, " ");
+
+      setFormData((prev) => ({
+        ...prev,
+        title: meta.title || prev.title || "Kegiatan Peserta Didik MTs Al Falaahiyyah",
+        excerpt: autoExcerpt || prev.excerpt,
+        content: fullContent || prev.content,
+        coverImage: meta.imageUrl || prev.coverImage,
+        sourceType: (meta.sourceType as SocialSourceType) || "social",
+        sourceUrl: meta.sourceUrl || trimmed,
+        embedUrl: meta.embedUrl || "",
+      }));
+
+      const platformLabel =
+        meta.sourceType === "instagram"
+          ? "Instagram"
+          : meta.sourceType === "facebook"
+          ? "Facebook"
+          : meta.sourceType === "youtube"
+          ? "YouTube"
+          : meta.sourceType === "tiktok"
+          ? "TikTok"
+          : "Media Sosial";
+
+      setSocialNotice(
+        fullContent
+          ? `✓ Berhasil mengambil judul, foto sampul, dan isi berita otomatis dari ${platformLabel}!`
+          : `✓ Tautan ${platformLabel} berhasil dihubungkan! Silakan lengkapi judul/isi berita di bawah.`
+      );
+    } catch (err: any) {
+      setErrorMsg(err.message || "Gagal mengambil informasi dari link media sosial.");
+    } finally {
+      setFetchingSocial(false);
+    }
+  };
+
+  // Handler saat link ditempel (paste) langsung otomatis ambil data
+  const handleSocialPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pastedText = e.clipboardData.getData("text");
+    if (pastedText && (pastedText.startsWith("http://") || pastedText.startsWith("https://"))) {
+      setSocialUrlInput(pastedText);
+      fetchFromSocialUrl(pastedText);
     }
   };
 
@@ -74,12 +157,11 @@ export default function AdminBeritaPage() {
     reader.readAsDataURL(file);
   };
 
-  useEffect(() => {
-    fetchNews();
-  }, []);
-
   const openAddModal = () => {
     setEditingItem(null);
+    setSocialUrlInput("");
+    setSocialNotice("");
+    setErrorMsg("");
     setFormData({
       title: "",
       excerpt: "",
@@ -87,12 +169,18 @@ export default function AdminBeritaPage() {
       category: "Keagamaan",
       coverImage: "https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&q=80&w=1200",
       isPublished: true,
+      sourceType: "upload",
+      sourceUrl: "",
+      embedUrl: "",
     });
     setIsModalOpen(true);
   };
 
   const openEditModal = (item: NewsItem) => {
     setEditingItem(item);
+    setSocialUrlInput(item.sourceUrl || "");
+    setSocialNotice("");
+    setErrorMsg("");
     setFormData({
       title: item.title,
       excerpt: item.excerpt,
@@ -100,6 +188,9 @@ export default function AdminBeritaPage() {
       category: item.category,
       coverImage: item.coverImage,
       isPublished: item.isPublished,
+      sourceType: item.sourceType || "upload",
+      sourceUrl: item.sourceUrl || "",
+      embedUrl: item.embedUrl || "",
     });
     setIsModalOpen(true);
   };
@@ -108,10 +199,10 @@ export default function AdminBeritaPage() {
     e.preventDefault();
     setSaving(true);
     setMessage("");
+    setErrorMsg("");
 
     try {
       if (editingItem) {
-        // Update
         const res = await fetch(`/api/news/${editingItem.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -120,7 +211,6 @@ export default function AdminBeritaPage() {
         const data = await res.json();
         if (!data.success) throw new Error(data.message);
       } else {
-        // Create
         const res = await fetch("/api/news", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -131,10 +221,10 @@ export default function AdminBeritaPage() {
       }
 
       setIsModalOpen(false);
-      setMessage("Data berita berhasil disimpan.");
+      setMessage("Data berita & kegiatan berhasil disimpan.");
       fetchNews();
     } catch (err: any) {
-      setMessage(err.message || "Gagal menyimpan berita.");
+      setErrorMsg(err.message || "Gagal menyimpan berita.");
     } finally {
       setSaving(false);
     }
@@ -155,14 +245,53 @@ export default function AdminBeritaPage() {
     }
   };
 
+  const renderSourceBadge = (sourceType?: SocialSourceType) => {
+    if (!sourceType || sourceType === "upload") return null;
+    if (sourceType === "instagram") {
+      return (
+        <span className="bg-gradient-to-r from-pink-600 via-purple-600 to-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+          Instagram
+        </span>
+      );
+    }
+    if (sourceType === "facebook") {
+      return (
+        <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+          Facebook
+        </span>
+      );
+    }
+    if (sourceType === "youtube") {
+      return (
+        <span className="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+          YouTube
+        </span>
+      );
+    }
+    if (sourceType === "tiktok") {
+      return (
+        <span className="bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+          TikTok
+        </span>
+      );
+    }
+    return (
+      <span className="bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+        Sosmed
+      </span>
+    );
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header Halaman */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900">Manajemen Berita &amp; Artikel</h1>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
+            Manajemen Berita &amp; Kegiatan Madrasah
+          </h1>
           <p className="text-slate-600 text-sm mt-0.5">
-            Publikasikan artikel, kegiatan santri, dan pengumuman resmi MTs Al Falaahiyyah.
+            Publikasikan artikel, kegiatan peserta didik, atau impor otomatis dari link Instagram, Facebook, YouTube &amp; TikTok.
           </p>
         </div>
 
@@ -171,7 +300,7 @@ export default function AdminBeritaPage() {
           className="inline-flex items-center gap-2 bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-2.5 px-4 rounded-xl shadow-sm text-sm transition-colors"
         >
           <Plus className="w-4 h-4" />
-          <span>Tambah Berita Baru</span>
+          <span>Tambah Berita / Link Sosmed</span>
         </button>
       </div>
 
@@ -194,7 +323,7 @@ export default function AdminBeritaPage() {
               <thead className="bg-slate-50 text-slate-500 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
                 <tr>
                   <th className="p-4">Cover &amp; Judul</th>
-                  <th className="p-4">Kategori</th>
+                  <th className="p-4">Kategori &amp; Sumber</th>
                   <th className="p-4">Penulis &amp; Tanggal</th>
                   <th className="p-4">Status</th>
                   <th className="p-4 text-right">Aksi</th>
@@ -217,9 +346,12 @@ export default function AdminBeritaPage() {
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className="bg-slate-100 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                        {item.category}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="bg-slate-100 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                          {item.category}
+                        </span>
+                        {renderSourceBadge(item.sourceType)}
+                      </div>
                     </td>
                     <td className="p-4 text-xs text-slate-600">
                       <div>{item.author}</div>
@@ -265,7 +397,7 @@ export default function AdminBeritaPage() {
       {/* Modal Form Tambah / Edit Berita */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative">
             <button
               onClick={() => setIsModalOpen(false)}
               className="absolute top-5 right-5 text-slate-400 hover:text-slate-700"
@@ -273,21 +405,73 @@ export default function AdminBeritaPage() {
               <X className="w-5 h-5" />
             </button>
 
-            <h2 className="text-xl font-bold text-slate-900 mb-5">
-              {editingItem ? "Edit Berita" : "Tambah Berita Baru"}
+            <h2 className="text-xl font-bold text-slate-900 mb-1">
+              {editingItem ? "Edit Berita & Kegiatan" : "Tambah Berita & Kegiatan Baru"}
             </h2>
+            <p className="text-xs text-slate-500 mb-5">
+              Tempel link dari Instagram, Facebook, YouTube, atau TikTok untuk mengisi berita otomatis, atau ketik secara manual.
+            </p>
+
+            {errorMsg && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-300 text-red-800 rounded-xl text-xs font-semibold">
+                ⚠️ {errorMsg}
+              </div>
+            )}
+
+            {/* Kotak Import Otomatis dari Instagram / Facebook / YouTube / TikTok */}
+            <div className="mb-5 p-4 rounded-2xl bg-gradient-to-br from-purple-50 via-pink-50 to-amber-50 border border-purple-200 space-y-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="block text-xs font-extrabold uppercase tracking-wider text-purple-950">
+                  🔗 Impor Otomatis dari Link Instagram / Facebook / YouTube / TikTok
+                </label>
+                <span className="text-[10px] font-bold bg-white text-purple-800 px-2.5 py-0.5 rounded-full border border-purple-200">
+                  Otomatis Ambil Foto &amp; Keterangan
+                </span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="url"
+                  value={socialUrlInput}
+                  onChange={(e) => setSocialUrlInput(e.target.value)}
+                  onPaste={handleSocialPaste}
+                  placeholder="Tempel link postingan Instagram, Facebook, YouTube, atau TikTok di sini..."
+                  className="flex-1 px-3.5 py-2.5 rounded-xl border border-purple-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-purple-600"
+                />
+                <button
+                  type="button"
+                  disabled={fetchingSocial || !socialUrlInput.trim()}
+                  onClick={() => fetchFromSocialUrl(socialUrlInput)}
+                  className="bg-purple-800 hover:bg-purple-900 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-colors disabled:opacity-50 shrink-0"
+                >
+                  {fetchingSocial ? "Mengambil Data..." : "Ambil Otomatis"}
+                </button>
+              </div>
+
+              {fetchingSocial && (
+                <p className="text-xs text-purple-800 font-semibold animate-pulse">
+                  ⏳ Sedang mengambil judul, gambar sampul, dan keterangan dari sosial media...
+                </p>
+              )}
+
+              {socialNotice && (
+                <p className="text-xs text-emerald-800 bg-emerald-100/80 border border-emerald-300 px-3 py-1.5 rounded-lg font-semibold">
+                  {socialNotice}
+                </p>
+              )}
+            </div>
 
             <form onSubmit={handleSave} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                  Judul Berita *
+                  Judul Berita / Kegiatan *
                 </label>
                 <input
                   type="text"
                   required
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Contoh: Santri MTs Al Falaahiyyah Raih Juara MHQ"
+                  placeholder="Otomatis terisi dari link sosmed atau ketik judul berita..."
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700"
                 />
               </div>
@@ -326,12 +510,26 @@ export default function AdminBeritaPage() {
               </div>
 
               <div className="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200/80 space-y-2.5">
-                <label className="block text-xs font-bold uppercase text-emerald-950">
-                  Gambar Sampul Berita (Cover Image)
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold uppercase text-emerald-950">
+                    Gambar Sampul Berita (Cover Image)
+                  </label>
+                  {renderSourceBadge(formData.sourceType)}
+                </div>
+
+                {formData.coverImage && (
+                  <div className="aspect-[16/9] w-full rounded-xl overflow-hidden bg-slate-200 border border-emerald-600 shadow-sm">
+                    <img
+                      src={formData.coverImage}
+                      alt="Preview Sampul Berita"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
                 <div>
                   <span className="text-xs font-semibold text-slate-700 block mb-1">
-                    1. Unggah Foto dari Perangkat / HP:
+                    1. Unggah Foto dari Perangkat / HP (Atau Ganti Thumbnail Sosmed):
                   </span>
                   <input
                     type="file"
@@ -348,7 +546,7 @@ export default function AdminBeritaPage() {
                     type="text"
                     value={formData.coverImage}
                     onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                    placeholder="https://images.unsplash.com/..."
+                    placeholder="Otomatis terisi dari sosmed atau masukkan URL gambar..."
                     className="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-emerald-700"
                   />
                 </div>
@@ -356,7 +554,7 @@ export default function AdminBeritaPage() {
 
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                  Ringkasan Singkat (Excerpt)
+                  Ringkasan Singkat (Otomatis dari Sosmed / Bisa Diedit)
                 </label>
                 <textarea
                   rows={2}
@@ -369,14 +567,14 @@ export default function AdminBeritaPage() {
 
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-700 mb-1">
-                  Isi Lengkap Berita *
+                  Isi Lengkap Berita / Keterangan Kegiatan *
                 </label>
                 <textarea
                   required
                   rows={6}
                   value={formData.content}
                   onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  placeholder="Tuliskan berita lengkap di sini..."
+                  placeholder="Otomatis terisi dari caption Instagram / Facebook / YouTube / TikTok atau tuliskan berita lengkap di sini..."
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-700"
                 />
               </div>
@@ -391,7 +589,7 @@ export default function AdminBeritaPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={saving}
+                  disabled={saving || fetchingSocial}
                   className="px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white text-sm font-bold shadow-md transition-colors disabled:opacity-50"
                 >
                   {saving ? "Menyimpan..." : "Simpan Berita"}

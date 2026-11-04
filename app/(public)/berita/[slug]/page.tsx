@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getNewsBySlug, getNewsList } from "@/lib/db";
-import { Calendar, User, ArrowRight, BookOpen, WhatsApp, Sparkles } from "@/components/Icons";
+import { Calendar, User, WhatsApp, Sparkles } from "@/components/Icons";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const item = await getNewsBySlug(params.slug);
@@ -27,6 +27,19 @@ export default async function DetailBeritaPage({ params }: { params: { slug: str
   // Pecah konten berdasarkan paragraf
   const paragraphs = article.content.split("\n\n");
 
+  const platformName =
+    article.sourceType === "instagram"
+      ? "Instagram"
+      : article.sourceType === "facebook"
+      ? "Facebook"
+      : article.sourceType === "youtube"
+      ? "YouTube"
+      : article.sourceType === "tiktok"
+      ? "TikTok"
+      : article.sourceType === "social"
+      ? "Media Sosial"
+      : null;
+
   return (
     <div className="bg-slate-50 py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,20 +56,39 @@ export default async function DetailBeritaPage({ params }: { params: { slug: str
           {/* Konten Utama Berita */}
           <article className="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200">
             {/* Kategori Badge & Metadata */}
-            <div className="flex flex-wrap items-center gap-3 mb-4">
-              <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
-                {article.category}
-              </span>
-              <span className="text-slate-400">•</span>
-              <span className="flex items-center gap-1.5 text-xs text-slate-500">
-                <Calendar className="w-3.5 h-3.5 text-emerald-700" />
-                <span>{article.date}</span>
-              </span>
-              <span className="text-slate-400">•</span>
-              <span className="flex items-center gap-1.5 text-xs text-slate-500">
-                <User className="w-3.5 h-3.5 text-emerald-700" />
-                <span>{article.author}</span>
-              </span>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
+                  {article.category}
+                </span>
+                {platformName && (
+                  <span className="bg-purple-100 text-purple-900 text-xs font-bold px-3 py-1 rounded-full">
+                    Sumber: {platformName}
+                  </span>
+                )}
+                <span className="text-slate-400">•</span>
+                <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                  <Calendar className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>{article.date}</span>
+                </span>
+                <span className="text-slate-400">•</span>
+                <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                  <User className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>{article.author}</span>
+                </span>
+              </div>
+
+              {article.sourceUrl && (
+                <a
+                  href={article.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-800 hover:bg-emerald-900 px-3.5 py-1.5 rounded-xl transition-colors shadow-sm"
+                >
+                  <span>Buka Postingan {platformName || "Asli"}</span>
+                  <span>&rarr;</span>
+                </a>
+              )}
             </div>
 
             {/* Judul Artikel */}
@@ -64,23 +96,72 @@ export default async function DetailBeritaPage({ params }: { params: { slug: str
               {article.title}
             </h1>
 
-            {/* Gambar Sampul Besar */}
-            <div className="rounded-2xl overflow-hidden aspect-[16/10] bg-slate-100 mb-8 border border-slate-200">
-              <img
-                src={article.coverImage}
-                alt={article.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            {/* Gambar Sampul Besar atau Video YouTube */}
+            {article.sourceType === "youtube" && article.embedUrl ? (
+              <div className="rounded-2xl overflow-hidden aspect-video bg-slate-900 mb-8 border border-slate-200 shadow-sm">
+                <iframe
+                  src={article.embedUrl}
+                  title={article.title}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            ) : article.coverImage ? (
+              <div className="rounded-2xl overflow-hidden aspect-[16/10] bg-slate-100 mb-8 border border-slate-200">
+                <img
+                  src={article.coverImage}
+                  alt={article.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : null}
 
             {/* Teks Isi Paragraf */}
-            <div className="space-y-5 text-slate-700 text-base sm:text-lg leading-relaxed">
+            <div className="space-y-5 text-slate-700 text-base sm:text-lg leading-relaxed whitespace-pre-line">
               {paragraphs.map((para, idx) => (
-                <p key={idx} className={idx === 0 ? "font-serif text-lg text-slate-900 font-medium leading-relaxed" : ""}>
+                <p
+                  key={idx}
+                  className={
+                    idx === 0
+                      ? "font-serif text-lg text-slate-900 font-medium leading-relaxed"
+                      : ""
+                  }
+                >
                   {para}
                 </p>
               ))}
             </div>
+
+            {/* Embed Postingan Interaktif Instagram / Facebook / TikTok jika tersedia */}
+            {article.embedUrl && article.sourceType !== "youtube" && (
+              <div className="mt-8 pt-6 border-t border-slate-100">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                    Tayangan Asli dari {platformName || "Media Sosial"}
+                  </span>
+                  {article.sourceUrl && (
+                    <a
+                      href={article.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-bold text-emerald-800 hover:underline"
+                    >
+                      Lihat di {platformName || "Aplikasi"} &rarr;
+                    </a>
+                  )}
+                </div>
+                <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 max-w-xl mx-auto">
+                  <iframe
+                    src={article.embedUrl}
+                    title={article.title}
+                    className="w-full h-[540px] border-0"
+                    loading="lazy"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Tags jika ada */}
             {article.tags && article.tags.length > 0 && (

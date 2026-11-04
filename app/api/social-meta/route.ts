@@ -20,7 +20,6 @@ function decodeHtmlEntities(str: string): string {
 
 function extractMetaContent(html: string, keys: string[]): string {
   for (const key of keys) {
-    // Match property="key" content="value"
     const reg1 = new RegExp(
       `<meta[^>]+(?:property|name)=["']${key}["'][^>]+content=["']([^"']+)["'][^>]*>`,
       "i"
@@ -28,7 +27,6 @@ function extractMetaContent(html: string, keys: string[]): string {
     const m1 = html.match(reg1);
     if (m1?.[1]) return decodeHtmlEntities(m1[1]);
 
-    // Match content="value" property="key"
     const reg2 = new RegExp(
       `<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${key}["'][^>]*>`,
       "i"
@@ -41,28 +39,23 @@ function extractMetaContent(html: string, keys: string[]): string {
 
 function cleanInstagramCaption(raw: string): string {
   if (!raw) return "";
-  let text = decodeHtmlEntities(raw);
+  const text = decodeHtmlEntities(raw);
 
   // Format umum og:description Instagram:
-  // 1) '120 likes, 5 comments - username on October 24, 2026: "Isi keterangan..."'
-  // 2) '@username on Instagram: "Isi keterangan..."'
+  // '120 likes, 5 comments - username on October 24, 2026: "Isi keterangan..."'
   const colonQuoteMatch = text.match(/:\s*["“]([\s\S]+)["”]\.?$/);
   if (colonQuoteMatch?.[1]) {
     return colonQuoteMatch[1].trim();
   }
 
-  // Format alternatif: 'username: "Isi keterangan"'
-  const firstQuoteIdx = text.indexOf('": "');
-  if (firstQuoteIdx === -1) {
-    const simpleColon = text.match(/^[^:]{2,90}:\s*["“]?([\s\S]+?)["”]?\s*$/);
-    if (
-      simpleColon?.[1] &&
-      (text.toLowerCase().includes("instagram") ||
-        text.toLowerCase().includes("likes") ||
-        text.toLowerCase().includes("comments"))
-    ) {
-      return simpleColon[1].trim();
-    }
+  const simpleColon = text.match(/^[^:]{2,90}:\s*["“]?([\s\S]+?)["”]?\s*$/);
+  if (
+    simpleColon?.[1] &&
+    (text.toLowerCase().includes("instagram") ||
+      text.toLowerCase().includes("likes") ||
+      text.toLowerCase().includes("comments"))
+  ) {
+    return simpleColon[1].trim();
   }
 
   return text.trim();
@@ -86,15 +79,14 @@ function cleanFacebookCaption(raw: string, rawTitle: string): string {
 }
 
 function deriveShortTitle(caption: string, fallbackPlatform: string): string {
-  if (!caption) return `Dokumentasi ${fallbackPlatform} MTs Al Falaahiyyah`;
-  // Ambil baris pertama yang tidak kosong
+  if (!caption) return `Kegiatan ${fallbackPlatform} MTs Al Falaahiyyah`;
   const lines = caption
     .split(/\r?\n/)
     .map((l) => l.replace(/^[#\s•✨🌟🏆📌📍🕌🎓]+/, "").trim())
     .filter(Boolean);
   const firstLine = lines[0] || caption;
-  if (firstLine.length <= 75) return firstLine;
-  return firstLine.slice(0, 72).trim() + "...";
+  if (firstLine.length <= 80) return firstLine;
+  return firstLine.slice(0, 77).trim() + "...";
 }
 
 async function fetchImageAsDataUrl(imageUrl: string): Promise<string> {
@@ -111,7 +103,6 @@ async function fetchImageAsDataUrl(imageUrl: string): Promise<string> {
     if (!res.ok) return imageUrl;
     const contentType = res.headers.get("content-type") || "image/jpeg";
     const arrayBuffer = await res.arrayBuffer();
-    // Batasi jika lebih dari 1.5MB agar database JSON tetap ringan
     if (arrayBuffer.byteLength > 1.5 * 1024 * 1024) {
       return imageUrl;
     }
@@ -122,7 +113,9 @@ async function fetchImageAsDataUrl(imageUrl: string): Promise<string> {
   }
 }
 
-function detectPlatform(url: string): "instagram" | "facebook" | "youtube" | "unknown" {
+function detectPlatform(
+  url: string
+): "instagram" | "facebook" | "youtube" | "tiktok" | "social" {
   const lower = url.toLowerCase();
   if (lower.includes("instagram.com") || lower.includes("instagr.am")) return "instagram";
   if (
@@ -132,7 +125,8 @@ function detectPlatform(url: string): "instagram" | "facebook" | "youtube" | "un
   )
     return "facebook";
   if (lower.includes("youtube.com") || lower.includes("youtu.be")) return "youtube";
-  return "unknown";
+  if (lower.includes("tiktok.com")) return "tiktok";
+  return "social";
 }
 
 function extractInstagramInfo(url: string): { shortcode: string; type: "p" | "reel" | "tv" } | null {
@@ -183,15 +177,6 @@ export async function POST(request: Request) {
     }
 
     const platform = detectPlatform(validUrl.toString());
-    if (platform === "unknown") {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Gunakan tautan dari Instagram, Facebook, atau YouTube.",
-        },
-        { status: 400 }
-      );
-    }
 
     // =========================================================================
     // 1. YOUTUBE HANDLER
@@ -211,7 +196,6 @@ export async function POST(request: Request) {
       let description = "";
       let imageUrl = defaultThumb;
 
-      // Ambil dari oEmbed resmi YouTube
       try {
         const oembedRes = await fetch(
           `https://www.youtube.com/oembed?url=${encodeURIComponent(
@@ -223,7 +207,7 @@ export async function POST(request: Request) {
           const oembedData = await oembedRes.json();
           title = oembedData.title || "";
           if (oembedData.author_name) {
-            description = `${oembedData.title || ""} — Kanal YouTube: ${oembedData.author_name}`;
+            description = `${oembedData.title || ""}\n\nKanal YouTube: ${oembedData.author_name}`;
           }
           if (oembedData.thumbnail_url) {
             imageUrl = oembedData.thumbnail_url;
@@ -233,7 +217,6 @@ export async function POST(request: Request) {
         // fallback ke scrape halaman
       }
 
-      // Coba ambil deskripsi lebih lengkap dari halaman YouTube
       try {
         const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
           headers: {
@@ -302,7 +285,6 @@ export async function POST(request: Request) {
         if (embedRes.ok) {
           const embedHtml = await embedRes.text();
 
-          // Cari gambar utama di EmbeddedMediaImage
           const imgMatch =
             embedHtml.match(/class=["'][^"']*EmbeddedMediaImage[^"']*["'][^>]+src=["']([^"']+)["']/i) ||
             embedHtml.match(/src=["']([^"']+)["'][^>]+class=["'][^"']*EmbeddedMediaImage[^"']*["']/i);
@@ -310,15 +292,12 @@ export async function POST(request: Request) {
             rawImageUrl = decodeHtmlEntities(imgMatch[1]);
           }
 
-          // Cari caption di blok class="Caption"
           const captionBlockMatch = embedHtml.match(
             /<div[^>]+class=["'][^"']*Caption[^"']*["'][^>]*>([\s\S]*?)<div[^>]+class=["'][^"']*CaptionComments/i
           );
           if (captionBlockMatch?.[1]) {
             let block = captionBlockMatch[1];
-            // Hapus username link di awal
             block = block.replace(/<a[^>]+class=["'][^"']*CaptionUsername[^"']*["'][^>]*>[\s\S]*?<\/a>/gi, "");
-            // Ubah <br> menjadi newline dan hapus tag HTML lainnya
             block = block
               .replace(/<br\s*\/?>/gi, "\n")
               .replace(/<[^>]+>/g, "")
@@ -327,7 +306,6 @@ export async function POST(request: Request) {
             if (cleaned) caption = cleaned;
           }
 
-          // Jika belum dapat dari HTML tag, cek JSON tersemat di script embed
           if (!caption || !rawImageUrl) {
             const displayUrlMatch = embedHtml.match(/"display_url"\s*:\s*"([^"]+)"/);
             if (!rawImageUrl && displayUrlMatch?.[1]) {
@@ -401,7 +379,6 @@ export async function POST(request: Request) {
         }
       }
 
-      // Konversi gambar thumbnail Instagram ke Base64 Data URL agar tidak terblokir CORS/CORP browser
       const finalImageUrl = rawImageUrl ? await fetchImageAsDataUrl(rawImageUrl) : "";
       const shortTitle = deriveShortTitle(caption, "Instagram");
 
@@ -435,7 +412,6 @@ export async function POST(request: Request) {
       let caption = "";
       let rawImageUrl = "";
 
-      // Lapisan 1: OpenGraph dengan crawler User-Agent
       try {
         const fbRes = await fetch(fbUrl, {
           headers: {
@@ -459,7 +435,6 @@ export async function POST(request: Request) {
         // lanjut ke lapisan 2
       }
 
-      // Lapisan 2: Microlink fallback
       if (!caption || !rawImageUrl) {
         try {
           const mlRes = await fetch(
@@ -499,10 +474,135 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json(
-      { success: false, message: "Tautan tidak dikenali." },
-      { status: 400 }
-    );
+    // =========================================================================
+    // 4. TIKTOK HANDLER
+    // =========================================================================
+    if (platform === "tiktok") {
+      const tkUrl = validUrl.toString();
+      let caption = "";
+      let rawImageUrl = "";
+      let embedUrl = "";
+
+      const videoIdMatch = tkUrl.match(/\/video\/(\d+)/);
+      if (videoIdMatch?.[1]) {
+        embedUrl = `https://www.tiktok.com/embed/v2/${videoIdMatch[1]}`;
+      }
+
+      // Gunakan oEmbed resmi TikTok
+      try {
+        const oembedRes = await fetch(
+          `https://www.tiktok.com/oembed?url=${encodeURIComponent(tkUrl)}`,
+          { cache: "no-store" }
+        );
+        if (oembedRes.ok) {
+          const oembedData = await oembedRes.json();
+          if (oembedData.title) caption = oembedData.title;
+          if (oembedData.thumbnail_url) rawImageUrl = oembedData.thumbnail_url;
+          if (!embedUrl && oembedData.embed_product_id) {
+            embedUrl = `https://www.tiktok.com/embed/v2/${oembedData.embed_product_id}`;
+          }
+        }
+      } catch {
+        // fallback ke microlink
+      }
+
+      if (!caption || !rawImageUrl) {
+        try {
+          const mlRes = await fetch(
+            `https://api.microlink.io/?url=${encodeURIComponent(tkUrl)}`,
+            { cache: "no-store" }
+          );
+          if (mlRes.ok) {
+            const mlJson = await mlRes.json();
+            const mlData = mlJson?.data;
+            if (mlData) {
+              if (!rawImageUrl && mlData.image?.url) rawImageUrl = mlData.image.url;
+              if (!caption) caption = mlData.description || mlData.title || "";
+            }
+          }
+        } catch {
+          // abaikan
+        }
+      }
+
+      const finalImageUrl = rawImageUrl ? await fetchImageAsDataUrl(rawImageUrl) : "";
+      const shortTitle = deriveShortTitle(caption, "TikTok");
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          sourceType: "tiktok",
+          sourceUrl: tkUrl,
+          embedUrl,
+          imageUrl: finalImageUrl,
+          title: shortTitle,
+          description: caption,
+        },
+      });
+    }
+
+    // =========================================================================
+    // 5. MEDIA SOSIAL / TAUTAN ARTIKEL LAINNYA (Twitter/X, Threads, Web, dll.)
+    // =========================================================================
+    const otherUrl = validUrl.toString();
+    let title = "";
+    let description = "";
+    let rawImageUrl = "";
+
+    try {
+      const pageRes = await fetch(otherUrl, {
+        headers: {
+          "User-Agent": "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+          Accept: "text/html,application/xhtml+xml",
+        },
+        redirect: "follow",
+        cache: "no-store",
+      });
+      if (pageRes.ok) {
+        const html = await pageRes.text();
+        title = extractMetaContent(html, ["og:title", "twitter:title"]);
+        description = extractMetaContent(html, ["og:description", "twitter:description", "description"]);
+        rawImageUrl = extractMetaContent(html, ["og:image", "twitter:image"]);
+      }
+    } catch {
+      // lanjut ke microlink
+    }
+
+    if (!title || !description || !rawImageUrl) {
+      try {
+        const mlRes = await fetch(
+          `https://api.microlink.io/?url=${encodeURIComponent(otherUrl)}`,
+          { cache: "no-store" }
+        );
+        if (mlRes.ok) {
+          const mlJson = await mlRes.json();
+          const mlData = mlJson?.data;
+          if (mlData) {
+            if (!title && mlData.title) title = mlData.title;
+            if (!description && mlData.description) description = mlData.description;
+            if (!rawImageUrl && mlData.image?.url) rawImageUrl = mlData.image.url;
+          }
+        }
+      } catch {
+        // abaikan
+      }
+    }
+
+    const finalImageUrl = rawImageUrl ? await fetchImageAsDataUrl(rawImageUrl) : "";
+    const finalCaption = description || title || "";
+    const finalTitle = title || deriveShortTitle(finalCaption, "Media Sosial");
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        sourceType: "social",
+        sourceUrl: otherUrl,
+        embedUrl: "",
+        imageUrl: finalImageUrl,
+        title: finalTitle,
+        description: finalCaption,
+      },
+    });
   } catch (error: any) {
     return NextResponse.json(
       {

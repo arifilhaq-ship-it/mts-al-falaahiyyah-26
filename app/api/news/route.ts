@@ -48,7 +48,18 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { title, excerpt, content, category, coverImage, isPublished, tags } = body;
+    const {
+      title,
+      excerpt,
+      content,
+      category,
+      coverImage,
+      isPublished,
+      tags,
+      sourceType,
+      sourceUrl,
+      embedUrl,
+    } = body;
 
     if (!title || !content) {
       return NextResponse.json({ success: false, message: "Judul dan konten berita wajib diisi." }, { status: 400 });
@@ -71,6 +82,9 @@ export async function POST(request: Request) {
       coverImage: coverImage || "https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&q=80&w=1200",
       isPublished: isPublished !== undefined ? isPublished : true,
       tags: tags || ["MTs Al Falaahiyyah", "Cikoneng Kulon", "Sumedang"],
+      sourceType: sourceType || "upload",
+      sourceUrl: sourceUrl || "",
+      embedUrl: embedUrl || "",
     });
 
     return NextResponse.json({ success: true, data: newItem, message: "Berita berhasil diterbitkan." });
