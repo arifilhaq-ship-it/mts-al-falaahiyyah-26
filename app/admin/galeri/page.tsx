@@ -389,28 +389,28 @@ export default function AdminGaleriPage() {
           Belum ada foto atau media yang tersimpan di galeri.
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-start">
           {items.map((item) => (
             <div
               key={item.id}
               className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
             >
-              <div className="aspect-[4/3] bg-slate-100 overflow-hidden relative">
+              <div className="w-full bg-slate-900/5 overflow-hidden relative flex items-center justify-center">
                 {item.imageUrl ? (
                   <img
                     src={item.imageUrl}
                     alt={item.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-auto max-h-[340px] object-contain"
                   />
                 ) : item.embedUrl ? (
                   <iframe
                     src={item.embedUrl}
                     title={item.title}
-                    className="w-full h-full border-0 pointer-events-none"
+                    className="w-full aspect-[4/3] border-0 pointer-events-none"
                     loading="lazy"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">
+                  <div className="w-full aspect-[4/3] flex items-center justify-center text-xs text-slate-400">
                     Media Sosial
                   </div>
                 )}
@@ -593,11 +593,11 @@ export default function AdminGaleriPage() {
                 </label>
 
                 {formData.imageUrl ? (
-                  <div className="aspect-[16/9] w-full rounded-xl overflow-hidden bg-slate-200 border border-emerald-600 shadow-sm relative">
+                  <div className="w-full rounded-xl overflow-hidden bg-slate-900/5 border border-emerald-600 shadow-sm relative flex items-center justify-center">
                     <img
                       src={formData.imageUrl}
                       alt="Preview Galeri"
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto max-h-[340px] object-contain"
                     />
                     {renderSourceBadge(formData.sourceType)}
                   </div>

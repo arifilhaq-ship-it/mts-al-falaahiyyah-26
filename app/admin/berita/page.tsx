@@ -518,11 +518,11 @@ export default function AdminBeritaPage() {
                 </div>
 
                 {formData.coverImage && (
-                  <div className="aspect-[16/9] w-full rounded-xl overflow-hidden bg-slate-200 border border-emerald-600 shadow-sm">
+                  <div className="w-full rounded-xl overflow-hidden bg-slate-900/5 border border-emerald-600 shadow-sm flex items-center justify-center">
                     <img
                       src={formData.coverImage}
                       alt="Preview Sampul Berita"
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto max-h-[340px] object-contain"
                     />
                   </div>
                 )}

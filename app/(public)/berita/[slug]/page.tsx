@@ -96,7 +96,7 @@ export default async function DetailBeritaPage({ params }: { params: { slug: str
               {article.title}
             </h1>
 
-            {/* Gambar Sampul Besar atau Video YouTube */}
+            {/* Gambar Sampul Besar atau Video YouTube - Menyesuaikan Ukuran Asli Tanpa Terpotong */}
             {article.sourceType === "youtube" && article.embedUrl ? (
               <div className="rounded-2xl overflow-hidden aspect-video bg-slate-900 mb-8 border border-slate-200 shadow-sm">
                 <iframe
@@ -108,11 +108,11 @@ export default async function DetailBeritaPage({ params }: { params: { slug: str
                 />
               </div>
             ) : article.coverImage ? (
-              <div className="rounded-2xl overflow-hidden aspect-[16/10] bg-slate-100 mb-8 border border-slate-200">
+              <div className="rounded-2xl overflow-hidden bg-slate-100 mb-8 border border-slate-200 flex items-center justify-center">
                 <img
                   src={article.coverImage}
                   alt={article.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-auto max-h-[780px] object-contain"
                 />
               </div>
             ) : null}

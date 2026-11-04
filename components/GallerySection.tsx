@@ -72,57 +72,63 @@ export default function GallerySection({ gallery }: GallerySectionProps) {
           subtitle="Potret suasana belajar, kegiatan keagamaan, dan prestasi peserta didik MTs Al Falaahiyyah."
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
           {displayItems.map((item) => (
             <div
               key={item.id}
               onClick={() => handleOpenItem(item)}
-              className="group relative rounded-2xl overflow-hidden aspect-[4/3] bg-slate-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300"
+              className="group relative bg-white rounded-2xl overflow-hidden border border-slate-200/80 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
             >
-              {item.imageUrl ? (
-                <img
-                  src={item.imageUrl}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              ) : item.embedUrl ? (
-                <iframe
-                  src={item.embedUrl}
-                  title={item.title}
-                  className="w-full h-full border-0 pointer-events-none"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-emerald-950 text-emerald-200 text-xs font-bold">
-                  Dokumentasi MTs Al Falaahiyyah
-                </div>
-              )}
+              <div className="relative bg-slate-100 overflow-hidden flex items-center justify-center">
+                {item.imageUrl ? (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    className="w-full h-auto max-h-[460px] object-contain group-hover:scale-[1.02] transition-transform duration-500"
+                  />
+                ) : item.embedUrl ? (
+                  <div className="w-full aspect-[4/3]">
+                    <iframe
+                      src={item.embedUrl}
+                      title={item.title}
+                      className="w-full h-full border-0 pointer-events-none"
+                      loading="lazy"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full aspect-[4/3] flex items-center justify-center bg-emerald-950 text-emerald-200 text-xs font-bold">
+                    Dokumentasi MTs Al Falaahiyyah
+                  </div>
+                )}
 
-              <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
-                {renderPlatformBadge(item.sourceType)}
+                <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
+                  <span className="bg-black/65 backdrop-blur-sm text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full">
+                    {item.category}
+                  </span>
+                  {renderPlatformBadge(item.sourceType)}
+                </div>
+
+                {/* View Icon Badge */}
+                <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <Eye className="w-4 h-4" />
+                </div>
               </div>
 
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5 text-white">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300 mb-1">
-                  {item.category}
-                </span>
-                <h4 className="font-bold text-base leading-snug drop-shadow line-clamp-1">
-                  {item.title}
-                </h4>
-                {item.description && (
-                  <p className="text-xs text-slate-200 line-clamp-2 mt-1 leading-relaxed">
-                    {item.description}
-                  </p>
-                )}
-                <div className="flex items-center gap-1.5 text-xs text-slate-300 mt-2">
+              <div className="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <h4 className="font-bold text-slate-900 text-base leading-snug line-clamp-1 group-hover:text-emerald-800 transition-colors">
+                    {item.title}
+                  </h4>
+                  {item.description && (
+                    <p className="text-xs text-slate-600 line-clamp-2 mt-1 leading-relaxed whitespace-pre-line">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-3 pt-2.5 border-t border-slate-100">
                   <Calendar className="w-3.5 h-3.5" />
                   <span>{item.date}</span>
                 </div>
-              </div>
-
-              {/* View Icon Badge */}
-              <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <Eye className="w-4 h-4" />
               </div>
             </div>
           ))}
@@ -149,28 +155,32 @@ export default function GallerySection({ gallery }: GallerySectionProps) {
             className="relative bg-white rounded-2xl overflow-hidden max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative aspect-[16/10] bg-slate-900 shrink-0">
+            <div className="relative bg-slate-900 shrink-0 flex items-center justify-center">
               {showEmbedInModal && selectedPhoto.embedUrl ? (
-                <iframe
-                  src={selectedPhoto.embedUrl}
-                  title={selectedPhoto.title}
-                  className="w-full h-full border-0 bg-white"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+                <div className="w-full aspect-[16/10]">
+                  <iframe
+                    src={selectedPhoto.embedUrl}
+                    title={selectedPhoto.title}
+                    className="w-full h-full border-0 bg-white"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
               ) : selectedPhoto.imageUrl ? (
                 <img
                   src={selectedPhoto.imageUrl}
                   alt={selectedPhoto.title}
-                  className="w-full h-full object-contain"
+                  className="w-full h-auto max-h-[75vh] object-contain"
                 />
               ) : selectedPhoto.embedUrl ? (
-                <iframe
-                  src={selectedPhoto.embedUrl}
-                  title={selectedPhoto.title}
-                  className="w-full h-full border-0 bg-white"
-                  allowFullScreen
-                />
+                <div className="w-full aspect-[16/10]">
+                  <iframe
+                    src={selectedPhoto.embedUrl}
+                    title={selectedPhoto.title}
+                    className="w-full h-full border-0 bg-white"
+                    allowFullScreen
+                  />
+                </div>
               ) : null}
 
               <button

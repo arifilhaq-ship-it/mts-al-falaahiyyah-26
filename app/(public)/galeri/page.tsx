@@ -114,30 +114,32 @@ export default function GaleriPage() {
           ))}
         </div>
 
-        {/* Galeri Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Galeri Grid - Menyesuaikan Ukuran Asli Foto Tanpa Terpotong */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
           {filteredItems.map((item) => (
             <div
               key={item.id}
               onClick={() => handleOpenItem(item)}
               className="group bg-white rounded-2xl overflow-hidden border border-slate-200/80 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
             >
-              <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
+              <div className="relative bg-slate-100 overflow-hidden flex items-center justify-center">
                 {item.imageUrl ? (
                   <img
                     src={item.imageUrl}
                     alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-auto max-h-[460px] object-contain group-hover:scale-[1.02] transition-transform duration-500"
                   />
                 ) : item.embedUrl ? (
-                  <iframe
-                    src={item.embedUrl}
-                    title={item.title}
-                    className="w-full h-full border-0 pointer-events-none"
-                    loading="lazy"
-                  />
+                  <div className="w-full aspect-[4/3]">
+                    <iframe
+                      src={item.embedUrl}
+                      title={item.title}
+                      className="w-full h-full border-0 pointer-events-none"
+                      loading="lazy"
+                    />
+                  </div>
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-emerald-950 text-emerald-200 text-xs font-bold">
+                  <div className="w-full aspect-[4/3] flex items-center justify-center bg-emerald-950 text-emerald-200 text-xs font-bold">
                     Dokumentasi MTs Al Falaahiyyah
                   </div>
                 )}
@@ -190,28 +192,32 @@ export default function GaleriPage() {
             className="relative bg-white rounded-2xl overflow-hidden max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative aspect-[16/10] bg-slate-900 shrink-0">
+            <div className="relative bg-slate-900 shrink-0 flex items-center justify-center">
               {showEmbedInModal && selectedPhoto.embedUrl ? (
-                <iframe
-                  src={selectedPhoto.embedUrl}
-                  title={selectedPhoto.title}
-                  className="w-full h-full border-0 bg-white"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+                <div className="w-full aspect-[16/10]">
+                  <iframe
+                    src={selectedPhoto.embedUrl}
+                    title={selectedPhoto.title}
+                    className="w-full h-full border-0 bg-white"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
               ) : selectedPhoto.imageUrl ? (
                 <img
                   src={selectedPhoto.imageUrl}
                   alt={selectedPhoto.title}
-                  className="w-full h-full object-contain"
+                  className="w-full h-auto max-h-[75vh] object-contain"
                 />
               ) : selectedPhoto.embedUrl ? (
-                <iframe
-                  src={selectedPhoto.embedUrl}
-                  title={selectedPhoto.title}
-                  className="w-full h-full border-0 bg-white"
-                  allowFullScreen
-                />
+                <div className="w-full aspect-[16/10]">
+                  <iframe
+                    src={selectedPhoto.embedUrl}
+                    title={selectedPhoto.title}
+                    className="w-full h-full border-0 bg-white"
+                    allowFullScreen
+                  />
+                </div>
               ) : null}
 
               <button

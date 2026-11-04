@@ -143,20 +143,22 @@ export default function BeritaPage() {
                 key={item.id}
                 className="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-card hover:shadow-cardHover transition-all duration-300 flex flex-col group"
               >
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                <div className="relative overflow-hidden bg-slate-100 flex items-center justify-center">
                   {item.coverImage ? (
                     <img
                       src={item.coverImage}
                       alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-auto max-h-[420px] object-contain group-hover:scale-[1.02] transition-transform duration-500"
                     />
                   ) : item.embedUrl ? (
-                    <iframe
-                      src={item.embedUrl}
-                      title={item.title}
-                      className="w-full h-full border-0 pointer-events-none"
-                      loading="lazy"
-                    />
+                    <div className="w-full aspect-[16/10]">
+                      <iframe
+                        src={item.embedUrl}
+                        title={item.title}
+                        className="w-full h-full border-0 pointer-events-none"
+                        loading="lazy"
+                      />
+                    </div>
                   ) : null}
                   <div className="absolute top-3 left-3 flex items-center gap-1.5">
                     <span className="bg-emerald-950/90 backdrop-blur-sm text-amber-300 text-xs font-bold px-3 py-1 rounded-full shadow">
