@@ -46,7 +46,7 @@ function renderPlatformBadge(sourceType?: SocialSourceType) {
 }
 
 export default function BeritaPage() {
-  const [newsItems, setNewsItems] = useState<NewsItem[]>(defaultNews);
+  const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
 

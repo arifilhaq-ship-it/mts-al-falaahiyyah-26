@@ -8,7 +8,7 @@ import { GalleryItem } from "@/lib/types";
 const categories = ["Semua", "Kegiatan Belajar", "Ekstrakurikuler", "PHBI & Keagamaan", "Prestasi", "Fasilitas"];
 
 export default function GaleriPage() {
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(defaultGallery);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [selectedPhoto, setSelectedPhoto] = useState<GalleryItem | null>(null);
   const [showEmbedInModal, setShowEmbedInModal] = useState(false);

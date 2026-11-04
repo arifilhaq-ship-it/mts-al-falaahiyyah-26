@@ -335,7 +335,7 @@ export async function getDb(): Promise<DatabaseSchema> {
     if (
       globalForDb.__mtsDbCache &&
       globalForDb.__mtsDbLastFetch &&
-      now - globalForDb.__mtsDbLastFetch < 1500
+      now - globalForDb.__mtsDbLastFetch < 15000
     ) {
       return globalForDb.__mtsDbCache;
     }
