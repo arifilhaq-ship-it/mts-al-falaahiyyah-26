@@ -359,6 +359,22 @@
   ],
   "ppdb": [
     {
+      "fullName": "neni",
+      "nisn": "44",
+      "gender": "L",
+      "birthPlace": "Sumedang",
+      "birthDate": "2026-11-16",
+      "previousSchool": " MN",
+      "parentName": "N",
+      "parentPhone": "2",
+      "address": "JK",
+      "programChoice": "Reguler",
+      "id": "ppdb-1793836854773",
+      "registrationNo": "PPDB-2026-003",
+      "status": "pending",
+      "createdAt": "2026-11-05T00:00:54.773Z"
+    },
+    {
       "id": "ppdb-001",
       "registrationNo": "PPDB-2025-001",
       "fullName": "Muhammad Fikri Ramadhan",
