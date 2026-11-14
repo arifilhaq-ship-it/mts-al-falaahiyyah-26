@@ -19,13 +19,15 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* 1. Hero Banner dengan Foto Kampus & CTA PPDB */}
+      {/* 1. Hero Banner dengan Carousel Galeri Kegiatan Peserta Didik & CTA PPDB */}
       <HeroBanner
         heroImage={settings.heroImage}
         specialProgramLabel={settings.specialProgramLabel}
         specialProgramTitle={settings.specialProgramTitle}
         heroPhotoCaption={settings.heroPhotoCaption}
         schoolName={settings.schoolName}
+        gallery={gallery}
+        news={news}
       />
 
       {/* 2. Quick Highlight Stats */}
