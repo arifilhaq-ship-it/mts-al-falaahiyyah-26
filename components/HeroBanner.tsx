@@ -101,7 +101,7 @@ export default function HeroBanner({
             description: n.excerpt || n.title,
             category: n.category || "Berita & Kegiatan",
             imageUrl: n.coverImage,
-            date: n.publishedAt,
+            date: n.date,
           });
         }
       }
