@@ -111,7 +111,10 @@ export default function HeroBanner({
   }, [gallery, news, bannerPhoto, activeSchoolName, photoCaption]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState<"next" | "prev">("next");
   const [isPaused, setIsPaused] = useState(false);
+  const [isFullViewOpen, setIsFullViewOpen] = useState(false);
+  const [fitMode, setFitMode] = useState<"contain" | "cover">("contain");
 
   const totalSlides = slides.length;
   const safeIndex = totalSlides > 0 ? currentIndex % totalSlides : 0;
@@ -125,21 +128,45 @@ export default function HeroBanner({
 
   const nextSlide = useCallback(() => {
     if (totalSlides <= 1) return;
+    setDirection("next");
     setCurrentIndex((prev) => (prev + 1) % totalSlides);
   }, [totalSlides]);
 
   const prevSlide = useCallback(() => {
     if (totalSlides <= 1) return;
+    setDirection("prev");
     setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
   }, [totalSlides]);
 
+  const goToSlide = useCallback(
+    (idx: number) => {
+      if (idx === safeIndex) return;
+      setDirection(idx > safeIndex ? "next" : "prev");
+      setCurrentIndex(idx);
+    },
+    [safeIndex]
+  );
+
+  // Otomatis berganti slide setiap 5 detik
   useEffect(() => {
-    if (totalSlides <= 1 || isPaused) return;
+    if (totalSlides <= 1 || isPaused || isFullViewOpen) return;
     const timer = setInterval(() => {
       nextSlide();
     }, 5000);
     return () => clearInterval(timer);
-  }, [totalSlides, isPaused, nextSlide]);
+  }, [totalSlides, isPaused, isFullViewOpen, nextSlide]);
+
+  // Navigasi keyboard saat mode Full View (Layar Penuh) aktif
+  useEffect(() => {
+    if (!isFullViewOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsFullViewOpen(false);
+      if (e.key === "ArrowRight") nextSlide();
+      if (e.key === "ArrowLeft") prevSlide();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isFullViewOpen, nextSlide, prevSlide]);
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "";
@@ -157,8 +184,8 @@ export default function HeroBanner({
   };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white py-8 sm:py-12 lg:py-16">
-      {/* Animasi Keyframes Elegan */}
+    <div className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-950 text-white py-6 sm:py-10 lg:py-14">
+      {/* Animasi Keyframes Elegan untuk Carousel, Caption, & Progress Bar */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -170,6 +197,18 @@ export default function HeroBanner({
               0% { background-position: -200% 0; }
               100% { background-position: 200% 0; }
             }
+            @keyframes kenBurnsElegance {
+              0% { transform: scale(1.04); }
+              100% { transform: scale(1); }
+            }
+            @keyframes captionSlideUp {
+              0% { opacity: 0; transform: translateY(12px); }
+              100% { opacity: 1; transform: translateY(0); }
+            }
+            @keyframes progressFill {
+              0% { width: 0%; }
+              100% { width: 100%; }
+            }
             .animate-float-elegant {
               animation: floatSlow 4.5s ease-in-out infinite;
             }
@@ -177,6 +216,15 @@ export default function HeroBanner({
               background: linear-gradient(90deg, rgba(245,158,11,0.25) 0%, rgba(251,191,36,0.85) 50%, rgba(245,158,11,0.25) 100%);
               background-size: 200% 100%;
               animation: shimmerGlow 5s linear infinite;
+            }
+            .animate-kenburns {
+              animation: kenBurnsElegance 5.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            }
+            .animate-caption-reveal {
+              animation: captionSlideUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            }
+            .animate-slide-progress {
+              animation: progressFill 5s linear forwards;
             }
           `,
         }}
@@ -200,36 +248,61 @@ export default function HeroBanner({
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
+      <div className="relative max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
         {/* ===================================================================== */}
         {/* BAGIAN ATAS: GALERI CAROUSEL KEGIATAN PESERTA DIDIK & KETERANGAN ELEGAN */}
         {/* ===================================================================== */}
         <div
-          className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-emerald-700/70 bg-emerald-950/90 backdrop-blur-md group"
+          className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-emerald-700/70 bg-emerald-950/95 backdrop-blur-md group"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          {/* Bingkai Utama Gambar Carousel (Menyesuaikan Proporsi Foto Asli Tanpa Terpotong) */}
-          <div className="relative w-full h-[280px] sm:h-[400px] md:h-[480px] lg:h-[540px] flex items-center justify-center overflow-hidden bg-emerald-950">
-            {/* Ambient Blur Background dari Foto Aktif agar Bingkai Terlihat Penuh & Mewah */}
-            <img
-              src={activeSlide.imageUrl}
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-35 transition-all duration-700 pointer-events-none"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-emerald-950 via-transparent to-emerald-950/40 pointer-events-none" />
+          {/* Bingkai Utama Gambar Carousel Full View dengan Transisi Crossfade & Ken Burns Elegan */}
+          <div className="relative w-full h-[340px] sm:h-[460px] md:h-[560px] lg:h-[640px] overflow-hidden bg-emerald-950 select-none">
+            {/* Render Semua Slide Secara Berlapis untuk Transisi Crossfade + Scale yang Halus */}
+            {slides.map((slide, idx) => {
+              const isActive = idx === safeIndex;
+              return (
+                <div
+                  key={slide.id}
+                  aria-hidden={!isActive}
+                  className={`absolute inset-0 flex items-center justify-center transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    isActive
+                      ? "opacity-100 z-10 scale-100 translate-x-0"
+                      : direction === "next"
+                      ? "opacity-0 z-0 scale-105 -translate-x-4 pointer-events-none"
+                      : "opacity-0 z-0 scale-105 translate-x-4 pointer-events-none"
+                  }`}
+                >
+                  {/* Ambient Blur Background agar Tidak Ada Ruang Kosong & Terlihat Mewah */}
+                  <img
+                    src={slide.imageUrl}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-45 pointer-events-none"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-transparent to-emerald-950/40 pointer-events-none" />
 
-            {/* Gambar Utama Utuh Tanpa Terpotong */}
-            <img
-              key={activeSlide.id}
-              src={activeSlide.imageUrl}
-              alt={activeSlide.title}
-              className="relative z-10 max-w-full max-h-full w-auto h-auto object-contain transition-all duration-700 shadow-2xl"
-            />
+                  {/* Gambar Utama (Klik untuk Membuka Layar Penuh / Full View) */}
+                  <img
+                    src={slide.imageUrl}
+                    alt={slide.title}
+                    onClick={() => setIsFullViewOpen(true)}
+                    title="Klik untuk melihat gambar ukuran penuh (Full View)"
+                    className={`relative z-10 cursor-zoom-in transition-all duration-700 ${
+                      isActive ? "animate-kenburns" : ""
+                    } ${
+                      fitMode === "contain"
+                        ? "w-full h-full object-contain"
+                        : "w-full h-full object-cover"
+                    }`}
+                  />
+                </div>
+              );
+            })}
 
             {/* Badge Atas Kiri: Label Galeri & Kategori */}
-            <div className="absolute top-3.5 left-3.5 sm:top-5 sm:left-5 z-20 flex flex-wrap items-center gap-2">
+            <div className="absolute top-3.5 left-3.5 sm:top-5 sm:left-5 z-20 flex flex-wrap items-center gap-2 pointer-events-none">
               <span className="inline-flex items-center gap-1.5 bg-emerald-950/85 backdrop-blur-md border border-emerald-600/60 text-amber-300 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg">
                 <ImageIcon className="w-3.5 h-3.5 text-amber-400" />
                 <span>Galeri Kegiatan Peserta Didik</span>
@@ -241,13 +314,52 @@ export default function HeroBanner({
               )}
             </div>
 
-            {/* Badge Atas Kanan: Nomor Slide & Pintasan Lihat Semua Galeri */}
-            <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 flex items-center gap-2">
+            {/* Badge Atas Kanan: Tombol Full View, Mode Tampilan, Nomor Slide & Semua Galeri */}
+            <div className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 flex flex-wrap items-center justify-end gap-2">
+              {/* Tombol Ubah Mode Utuh vs Layar Penuh Bingkai */}
+              <button
+                type="button"
+                onClick={() =>
+                  setFitMode((prev) => (prev === "contain" ? "cover" : "contain"))
+                }
+                className="inline-flex items-center gap-1.5 bg-emerald-950/85 hover:bg-emerald-800 backdrop-blur-md border border-emerald-600/70 text-emerald-100 text-[11px] sm:text-xs font-bold px-3 py-1.5 rounded-full shadow-lg transition-all"
+                title={
+                  fitMode === "contain"
+                    ? "Ubah ke tampilan memenuhi seluruh bingkai"
+                    : "Ubah ke tampilan proporsi foto utuh"
+                }
+              >
+                <svg className="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M9 3v18M15 3v18M3 9h18M3 15h18" />
+                </svg>
+                <span className="hidden md:inline">
+                  {fitMode === "contain" ? "Penuhi Bingkai" : "Foto Utuh"}
+                </span>
+              </button>
+
+              {/* Tombol Perbesar Full View (Layar Penuh 100%) */}
+              <button
+                type="button"
+                onClick={() => setIsFullViewOpen(true)}
+                className="inline-flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-emerald-950 text-[11px] sm:text-xs font-extrabold px-3.5 py-1.5 rounded-full shadow-lg transition-all"
+                title="Buka gambar dalam tampilan layar penuh (Full View)"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 3 21 3 21 9" />
+                  <polyline points="9 21 3 21 3 15" />
+                  <line x1="21" y1="3" x2="14" y2="10" />
+                  <line x1="3" y1="21" x2="10" y2="14" />
+                </svg>
+                <span>Full View</span>
+              </button>
+
               {totalSlides > 1 && (
-                <span className="bg-emerald-950/85 backdrop-blur-md border border-emerald-700/70 text-emerald-100 text-xs font-bold px-3 py-1 rounded-full shadow">
+                <span className="bg-emerald-950/85 backdrop-blur-md border border-emerald-700/70 text-emerald-100 text-xs font-bold px-3 py-1.5 rounded-full shadow">
                   {safeIndex + 1} / {totalSlides}
                 </span>
               )}
+
               <Link
                 href="/galeri"
                 className="hidden sm:inline-flex items-center gap-1 bg-emerald-900/85 hover:bg-amber-500 hover:text-emerald-950 text-emerald-100 text-xs font-bold px-3.5 py-1.5 rounded-full border border-emerald-600/60 transition-all shadow"
@@ -264,7 +376,7 @@ export default function HeroBanner({
                   type="button"
                   onClick={prevSlide}
                   aria-label="Foto Sebelumnya"
-                  className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-950/75 hover:bg-amber-500 text-white hover:text-emerald-950 border border-emerald-600/60 backdrop-blur-md flex items-center justify-center shadow-xl transition-all duration-200 focus:outline-none"
+                  className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-950/75 hover:bg-amber-500 text-white hover:text-emerald-950 border border-emerald-600/60 backdrop-blur-md flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-105 focus:outline-none"
                 >
                   <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="15 18 9 12 15 6" />
@@ -274,7 +386,7 @@ export default function HeroBanner({
                   type="button"
                   onClick={nextSlide}
                   aria-label="Foto Selanjutnya"
-                  className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-950/75 hover:bg-amber-500 text-white hover:text-emerald-950 border border-emerald-600/60 backdrop-blur-md flex items-center justify-center shadow-xl transition-all duration-200 focus:outline-none"
+                  className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-emerald-950/75 hover:bg-amber-500 text-white hover:text-emerald-950 border border-emerald-600/60 backdrop-blur-md flex items-center justify-center shadow-xl transition-all duration-200 hover:scale-105 focus:outline-none"
                 >
                   <svg className="w-5 h-5 sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="9 18 15 12 9 6" />
@@ -282,12 +394,25 @@ export default function HeroBanner({
                 </button>
               </>
             )}
+
+            {/* Baris Progress Bar Transisi Otomatis Elegan di Dasar Bingkai Foto */}
+            {totalSlides > 1 && !isPaused && !isFullViewOpen && (
+              <div className="absolute bottom-0 inset-x-0 h-1 bg-emerald-900/60 z-20 overflow-hidden">
+                <div
+                  key={`progress-${safeIndex}`}
+                  className="h-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 animate-slide-progress"
+                />
+              </div>
+            )}
           </div>
 
           {/* Panel Keterangan Kegiatan yang Elegan di Bawah Gambar Carousel */}
           <div className="relative z-20 bg-gradient-to-r from-emerald-950 via-emerald-900/95 to-emerald-950 border-t border-amber-500/30 px-5 sm:px-8 py-5 sm:py-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1.5 max-w-4xl">
+              <div
+                key={`caption-${activeSlide.id}`}
+                className="space-y-1.5 max-w-4xl animate-caption-reveal"
+              >
                 <div className="flex flex-wrap items-center gap-2.5 text-xs text-amber-300 font-semibold">
                   <span className="inline-flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
@@ -323,11 +448,11 @@ export default function HeroBanner({
                       <button
                         key={s.id}
                         type="button"
-                        onClick={() => setCurrentIndex(idx)}
+                        onClick={() => goToSlide(idx)}
                         aria-label={`Pilih slide ${idx + 1}`}
-                        className={`h-2.5 rounded-full transition-all duration-300 ${
+                        className={`h-2.5 rounded-full transition-all duration-500 ${
                           idx === safeIndex
-                            ? "w-8 bg-amber-400 shadow-sm shadow-amber-400/50"
+                            ? "w-9 bg-amber-400 shadow-sm shadow-amber-400/50"
                             : "w-2.5 bg-emerald-700 hover:bg-emerald-500"
                         }`}
                       />
@@ -335,17 +460,115 @@ export default function HeroBanner({
                   </div>
                 )}
 
-                <Link
-                  href="/galeri"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 hover:text-amber-200 transition-colors"
-                >
-                  <span>Lihat Dokumentasi Lainnya</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+                <div className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setIsFullViewOpen(true)}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-emerald-200 hover:text-amber-300 transition-colors"
+                  >
+                    <span>Perbesar Gambar</span>
+                  </button>
+                  <Link
+                    href="/galeri"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 hover:text-amber-200 transition-colors"
+                  >
+                    <span>Lihat Dokumentasi Lainnya</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* ===================================================================== */}
+        {/* MODAL LIGHTBOX FULL VIEW (TAMPILAN GAMBAR LAYAR PENUH 100%)           */}
+        {/* ===================================================================== */}
+        {isFullViewOpen && (
+          <div
+            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex flex-col justify-between p-3 sm:p-6 animate-caption-reveal"
+            onClick={() => setIsFullViewOpen(false)}
+          >
+            {/* Baris Atas Modal Full View */}
+            <div
+              className="flex items-center justify-between gap-4 max-w-7xl w-full mx-auto z-10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="bg-amber-500 text-emerald-950 text-xs font-black uppercase px-3 py-1 rounded-full">
+                  {activeSlide.category || "Galeri Kegiatan"}
+                </span>
+                {totalSlides > 1 && (
+                  <span className="text-emerald-200 text-xs sm:text-sm font-bold">
+                    Foto {safeIndex + 1} dari {totalSlides}
+                  </span>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsFullViewOpen(false)}
+                className="inline-flex items-center gap-1.5 bg-emerald-900/90 hover:bg-amber-500 text-white hover:text-emerald-950 font-bold text-xs sm:text-sm px-4 py-2 rounded-full border border-emerald-600/60 transition-all shadow-lg"
+              >
+                <span>Tutup Full View</span>
+                <span className="text-base leading-none">&times;</span>
+              </button>
+            </div>
+
+            {/* Area Gambar Utama Full Screen */}
+            <div
+              className="relative flex-1 flex items-center justify-center my-2 sm:my-4 overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                key={`full-${activeSlide.id}`}
+                src={activeSlide.imageUrl}
+                alt={activeSlide.title}
+                className="max-w-[96vw] max-h-[75vh] w-auto h-auto object-contain rounded-xl shadow-2xl transition-all duration-500"
+              />
+
+              {totalSlides > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={prevSlide}
+                    aria-label="Foto Sebelumnya"
+                    className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-emerald-950/80 hover:bg-amber-500 text-white hover:text-emerald-950 border border-emerald-600/60 flex items-center justify-center shadow-2xl transition-all"
+                  >
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={nextSlide}
+                    aria-label="Foto Selanjutnya"
+                    className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-emerald-950/80 hover:bg-amber-500 text-white hover:text-emerald-950 border border-emerald-600/60 flex items-center justify-center shadow-2xl transition-all"
+                  >
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Keterangan Lengkap di Bawah Modal Full View */}
+            <div
+              className="max-w-4xl w-full mx-auto bg-emerald-950/90 border border-emerald-700/60 rounded-2xl px-5 py-4 text-center space-y-1.5 z-10"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-base sm:text-xl font-extrabold text-white">
+                {activeSlide.title}
+              </h3>
+              {activeSlide.description && (
+                <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
+                  {activeSlide.description}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* ===================================================================== */}
         {/* BAGIAN BAWAH (DI BAWAH GAMBAR CAROUSEL):                              */}
